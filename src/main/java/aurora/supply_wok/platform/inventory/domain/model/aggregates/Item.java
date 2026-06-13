@@ -14,6 +14,7 @@ import java.util.List;
 public class Item extends AuditableAbstractAggregateRoot<Item> {
 
     private Long id;
+    private Long categoryId;
     private RestaurantId restaurantId;
     private List<SupplierId> supplierIds;
     private String name;
@@ -22,7 +23,7 @@ public class Item extends AuditableAbstractAggregateRoot<Item> {
     private String imageUrl;
     private Stock stock;
 
-    public Item(RestaurantId restaurantId, List<SupplierId> supplierIds, String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl, Stock stock) {
+    public Item(Long categoryId, RestaurantId restaurantId, List<SupplierId> supplierIds, String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl, Stock stock) {
 
         if (restaurantId == null || restaurantId.restaurantId() == null || restaurantId.restaurantId() < 0) {
             throw new IllegalArgumentException("RestaurantId cannot be null or less than 0");
@@ -42,6 +43,7 @@ public class Item extends AuditableAbstractAggregateRoot<Item> {
         if (stock == null) {
             throw new IllegalArgumentException("Stock cannot be null");
         }
+        this.categoryId = categoryId;
         this.restaurantId = restaurantId;
         this.supplierIds = supplierIds;
         this.name = name;
@@ -51,10 +53,11 @@ public class Item extends AuditableAbstractAggregateRoot<Item> {
         this.stock = stock;
     }
 
-    public void updateInformation(String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl)
+    public void updateInformation(Long categoryId, String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl)
     {
         this.name = name;
         this.brand = brand;
+        this.categoryId = categoryId;
         this.unitOfMeasure = unitOfMeasure;
         this.imageUrl = imageUrl;
     }
