@@ -4,6 +4,5 @@ public enum MovementType {
     ENTRY,
     EXIT,
     ADJUSTMENT,
-    WRITE_OFF,
-    OTHER
+    WRITE_OFF
 }

@@ -5,32 +5,29 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
+@Setter
 public class Stock {
 
-    @Setter
+
     private Long id;
-
-    @Setter
     private Long itemId;
-
-    @Setter
     private double currentStock;
-
-    @Setter
     private double maximumStockLevel;
-
-    @Setter
     private double minimumStockLevel;
-
-    @Setter
     private StockStatus stockStatus;
-
-    @Setter
     private Long stockMovementHistoryId;
 
     public Stock(double currentStock, double maximumStockLevel, double minimumStockLevel,
      Long stockMovementHistoryId)
     {
+        if (currentStock < 0 || maximumStockLevel < 0 || minimumStockLevel < 0)
+        {
+            throw new IllegalArgumentException("Stock levels cannot be negative");
+        }
+        if (stockMovementHistoryId == null || stockMovementHistoryId < 0)
+        {
+            throw new IllegalArgumentException("Stock movement history ID cannot be negative or null");
+        }
         this.currentStock = currentStock;
         this.maximumStockLevel = maximumStockLevel;
         this.minimumStockLevel = minimumStockLevel;
@@ -57,7 +54,7 @@ public class Stock {
         }
     }
 
-    public void increaseStock(int quantity)
+    public void increaseStock(double quantity)
     {
         if (quantity <= 0)
         {
@@ -67,7 +64,7 @@ public class Stock {
         updateStockStatus();
     }
 
-    public void decreaseStock(int quantity)
+    public void decreaseStock(double quantity)
     {
         if (quantity <= 0)
         {
@@ -81,7 +78,7 @@ public class Stock {
         updateStockStatus();
     }
 
-    public void adjustCurrentStock(int quantity)
+    public void adjustCurrentStock(double quantity)
     {
         if (quantity < 0)
         {
@@ -91,7 +88,7 @@ public class Stock {
         updateStockStatus();
     }
 
-    public void changeMaximumLevel(int level)
+    public void changeMaximumLevel(double level)
     {
         if (level <= 0)
         {
@@ -101,7 +98,7 @@ public class Stock {
         updateStockStatus();
     }
 
-    public void changeMinimumLevel(int level)
+    public void changeMinimumLevel(double level)
     {
         if (level <= 0)
         {
