@@ -1,12 +1,13 @@
 package aurora.supply_wok.platform.inventory.application.internal.queryservices;
 
+import aurora.supply_wok.platform.inventory.application.queryservices.InventoryQueryService;
 import aurora.supply_wok.platform.inventory.domain.model.entities.InventoryActivity;
 import aurora.supply_wok.platform.inventory.domain.model.entities.StockMovement;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllInventoryActivitiesQuery;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllStockMovementsByItemIdQuery;
-import aurora.supply_wok.platform.inventory.domain.services.InventoryQueryService;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.InventoryActivityRepository;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.StockMovementRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.InventoryActivityPersistenceRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.StockMovementPersistenceRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,10 +15,11 @@ import java.util.List;
 @Service
 public class InventoryQueryServiceImpl implements InventoryQueryService {
 
-    private final StockMovementRepository stockMovementRepository;
-    private final InventoryActivityRepository inventoryActivityRepository;
+    private final StockMovementPersistenceRepository stockMovementRepository;
+    private final InventoryActivityPersistenceRepository inventoryActivityRepository;
 
-    public InventoryQueryServiceImpl(StockMovementRepository stockMovementRepository, InventoryActivityRepository inventoryActivityRepository)
+    public InventoryQueryServiceImpl(StockMovementPersistenceRepository stockMovementRepository,
+                                     InventoryActivityPersistenceRepository inventoryActivityRepository)
     {
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryActivityRepository = inventoryActivityRepository;
@@ -30,6 +32,7 @@ public class InventoryQueryServiceImpl implements InventoryQueryService {
 
     @Override
     public List<InventoryActivity> handle(GetAllInventoryActivitiesQuery query) {
-        return this.inventoryActivityRepository.findAll();
+        var pageRequest = PageRequest.of(query.page(), query.size());
+        return this.inventoryActivityRepository.findAllByOrderByDateDesc(pageRequest).getContent();
     }
 }

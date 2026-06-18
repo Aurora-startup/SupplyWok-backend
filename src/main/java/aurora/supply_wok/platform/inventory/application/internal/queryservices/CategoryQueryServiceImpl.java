@@ -1,11 +1,11 @@
 package aurora.supply_wok.platform.inventory.application.internal.queryservices;
 
+import aurora.supply_wok.platform.inventory.application.queryservices.CategoryQueryService;
 import aurora.supply_wok.platform.inventory.domain.model.aggregates.Category;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllCategoriesQuery;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllCategoriesWithNumberOfItemsQuery;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetCategoryByIdQuery;
-import aurora.supply_wok.platform.inventory.domain.services.CategoryQueryService;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.CategoryRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.CategoryPersistenceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.Optional;
 @Service
 public class CategoryQueryServiceImpl implements CategoryQueryService {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryPersistenceRepository categoryRepository;
 
-    public CategoryQueryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryQueryServiceImpl(CategoryPersistenceRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
