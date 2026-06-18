@@ -9,6 +9,12 @@ import aurora.supply_wok.platform.inventory.interfaces.rest.resources.ItemResour
 
 public class UpdateItemCommandFromResourceAssembler {
     public static UpdateItemCommand toCommandFromResource(Long itemId, ItemResource resource) {
+        var stock = new Stock(
+                resource.stock().currentStock(),
+                resource.stock().maxLevel(),
+                resource.stock().minLevel()
+        );
+
         return new UpdateItemCommand(
                 itemId,
                 resource.categoryId(),
@@ -18,7 +24,7 @@ public class UpdateItemCommandFromResourceAssembler {
                 resource.brand(),
                 resource.imageUrl(),
                 UnitOfMeasure.valueOf(resource.unitOfMeasure()),
-                new Stock(resource.stock(), 0 ,0)                      // Crear objeto Stock
+                stock
         );
     }
 }

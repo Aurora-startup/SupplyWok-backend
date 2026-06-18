@@ -60,7 +60,7 @@ public class ItemCommandServiceImpl implements ItemCommandService {
 
         var itemToUpdate = this.itemRepository.findById(itemId).get();
         itemToUpdate.updateInformation(command.categoryId(), command.supplierId(),
-                command.name(), command.brand(), command.unitOfMeasure(), command.imageUrl());
+                command.name(), command.brand(), command.unitOfMeasure(), command.imageUrl(), command.stock());
 
         try {
             var updateItem = this.itemRepository.save(itemToUpdate);
@@ -82,7 +82,7 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while deleting item: " + e.getMessage());
         }
-
+        
     }
 
     @Transactional

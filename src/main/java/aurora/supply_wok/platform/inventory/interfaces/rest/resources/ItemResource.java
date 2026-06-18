@@ -13,5 +13,5 @@ public record ItemResource(
         String brand,
         String unitOfMeasure,
         String imageUrl,
-        double stock
+        StockResource stock
 ) {}
