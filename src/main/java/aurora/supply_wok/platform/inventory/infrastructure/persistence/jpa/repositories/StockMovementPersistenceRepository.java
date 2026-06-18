@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface StockMovementRepository extends JpaRepository<StockMovement, Long> {
+public interface StockMovementPersistenceRepository extends JpaRepository<StockMovement, Long> {
 
     List<StockMovement> findAllByItemIdOrderByDateDesc(Long itemId);
 

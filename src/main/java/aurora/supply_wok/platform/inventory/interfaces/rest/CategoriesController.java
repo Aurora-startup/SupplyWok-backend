@@ -1,10 +1,10 @@
 package aurora.supply_wok.platform.inventory.interfaces.rest;
-import aurora.supply_wok.platform.inventory.domain.model.commands.CreateCategoryCommand;
+
+import aurora.supply_wok.platform.inventory.application.commandservices.CategoryCommandService;
+import aurora.supply_wok.platform.inventory.application.queryservices.CategoryQueryService;
 import aurora.supply_wok.platform.inventory.domain.model.commands.DeleteCategoryCommand;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllCategoriesQuery;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetCategoryByIdQuery;
-import aurora.supply_wok.platform.inventory.domain.services.CategoryCommandService;
-import aurora.supply_wok.platform.inventory.domain.services.CategoryQueryService;
 import aurora.supply_wok.platform.inventory.interfaces.rest.resources.CategoryResource;
 import aurora.supply_wok.platform.inventory.interfaces.rest.resources.CreateCategoryResource;
 import aurora.supply_wok.platform.inventory.interfaces.rest.transform.CategoryResourceFromEntityAssembler;
@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE })
 @RestController
@@ -55,7 +54,7 @@ public class CategoriesController {
         var categories = this.categoryQueryService.handle(getAllCategoriesQuery);
         var categoryResources = categories.stream()
                 .map(CategoryResourceFromEntityAssembler::toResourceFromEntity)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(categoryResources);
     }
 

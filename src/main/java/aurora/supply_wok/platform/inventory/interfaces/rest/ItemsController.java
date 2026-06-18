@@ -1,10 +1,14 @@
 package aurora.supply_wok.platform.inventory.interfaces.rest;
 
-import aurora.supply_wok.platform.inventory.domain.model.commands.*;
+import aurora.supply_wok.platform.inventory.application.commandservices.ItemCommandService;
+import aurora.supply_wok.platform.inventory.application.queryservices.ItemQueryService;
+import aurora.supply_wok.platform.inventory.domain.model.commands.DeleteItemCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockAdjustmentCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockEntryCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockExitCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockWriteOffCommand;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllItemsQuery;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetItemByIdQuery;
-import aurora.supply_wok.platform.inventory.domain.services.ItemCommandService;
-import aurora.supply_wok.platform.inventory.domain.services.ItemQueryService;
 import aurora.supply_wok.platform.inventory.interfaces.rest.resources.CreateItemResource;
 import aurora.supply_wok.platform.inventory.interfaces.rest.resources.ItemResource;
 import aurora.supply_wok.platform.inventory.interfaces.rest.resources.RegisterStockResource;
@@ -20,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE })
 @RestController
@@ -57,7 +60,7 @@ public class ItemsController {
         var items = this.itemQueryService.handle(getAllItemsQuery);
         var itemResources = items.stream()
                 .map(ItemResourceFromEntityAssembler::toResourceFromEntity)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(itemResources);
     }
 

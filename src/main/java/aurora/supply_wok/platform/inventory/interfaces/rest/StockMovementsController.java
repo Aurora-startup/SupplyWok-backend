@@ -1,8 +1,8 @@
 package aurora.supply_wok.platform.inventory.interfaces.rest;
 
+import aurora.supply_wok.platform.inventory.application.commandservices.InventoryCommandService;
+import aurora.supply_wok.platform.inventory.application.queryservices.InventoryQueryService;
 import aurora.supply_wok.platform.inventory.domain.model.queries.GetAllStockMovementsByItemIdQuery;
-import aurora.supply_wok.platform.inventory.domain.services.InventoryCommandService;
-import aurora.supply_wok.platform.inventory.domain.services.InventoryQueryService;
 import aurora.supply_wok.platform.inventory.interfaces.rest.resources.StockMovementResource;
 import aurora.supply_wok.platform.inventory.interfaces.rest.transform.StockMovementResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;

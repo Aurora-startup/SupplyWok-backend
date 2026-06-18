@@ -1,6 +1,5 @@
 package aurora.supply_wok.platform.inventory.domain.model.entities;
 
-import aurora.supply_wok.platform.inventory.domain.model.aggregates.Item;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.MovementType;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.SupplierId;
 import jakarta.persistence.*;
