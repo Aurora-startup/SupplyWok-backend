@@ -81,7 +81,7 @@ public class Item extends AuditableAbstractAggregateRoot<Item> {
 
     }
 
-    public void updateInformation(Long categoryId, SupplierId supplierId, String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl)
+    public void updateInformation(Long categoryId, SupplierId supplierId, String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl, Stock stock)
     {
         this.supplierId = supplierId;
         this.name = name;
@@ -89,6 +89,8 @@ public class Item extends AuditableAbstractAggregateRoot<Item> {
         this.categoryId = categoryId;
         this.unitOfMeasure = unitOfMeasure;
         this.imageUrl = imageUrl;
+        this.stock.changeMaximumLevel(stock.getMaximumStockLevel());
+        this.stock.changeMinimumLevel(stock.getMinimumStockLevel());
     }
 
     public void updateStockLevels(double minimum, double maximum)

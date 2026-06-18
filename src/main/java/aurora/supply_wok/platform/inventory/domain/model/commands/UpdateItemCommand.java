@@ -17,6 +17,10 @@ public record UpdateItemCommand(Long itemId, Long categoryId, SupplierId supplie
         if (supplierId == null) {
             throw new IllegalArgumentException("SupplierId cannot be null or empty");
         }
+        if(stock.getMinimumStockLevel()>=stock.getMaximumStockLevel())
+        {
+            throw new IllegalArgumentException("Minimum stock level cannot be greater than maximum stock level");
+        }
         if (restaurantId == null) {
             throw new IllegalArgumentException("restaurantId cannot be null");
         }
