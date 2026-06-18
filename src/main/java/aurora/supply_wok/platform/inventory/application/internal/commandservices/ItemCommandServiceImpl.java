@@ -1,15 +1,21 @@
 package aurora.supply_wok.platform.inventory.application.internal.commandservices;
 
+import aurora.supply_wok.platform.inventory.application.commandservices.ItemCommandService;
 import aurora.supply_wok.platform.inventory.domain.model.aggregates.Item;
-import aurora.supply_wok.platform.inventory.domain.model.commands.*;
+import aurora.supply_wok.platform.inventory.domain.model.commands.CreateItemCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.DeleteItemCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockAdjustmentCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockEntryCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockExitCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.RegisterStockWriteOffCommand;
+import aurora.supply_wok.platform.inventory.domain.model.commands.UpdateItemCommand;
 import aurora.supply_wok.platform.inventory.domain.model.entities.InventoryActivity;
 import aurora.supply_wok.platform.inventory.domain.model.entities.StockMovement;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.ActivityType;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.MovementType;
-import aurora.supply_wok.platform.inventory.domain.services.ItemCommandService;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.InventoryActivityRepository;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.ItemRepository;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.StockMovementRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.InventoryActivityPersistenceRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.ItemPersistenceRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.StockMovementPersistenceRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +24,13 @@ import java.util.Optional;
 @Service
 public class ItemCommandServiceImpl implements ItemCommandService {
 
-    private final ItemRepository itemRepository;
-    private final StockMovementRepository stockMovementRepository;
-    private final InventoryActivityRepository inventoryActivityRepository;
+    private final ItemPersistenceRepository itemRepository;
+    private final StockMovementPersistenceRepository stockMovementRepository;
+    private final InventoryActivityPersistenceRepository inventoryActivityRepository;
 
-    public ItemCommandServiceImpl(ItemRepository itemRepository, StockMovementRepository stockMovementRepository
-    , InventoryActivityRepository inventoryActivityRepository) {
+    public ItemCommandServiceImpl(ItemPersistenceRepository itemRepository,
+                                  StockMovementPersistenceRepository stockMovementRepository,
+                                  InventoryActivityPersistenceRepository inventoryActivityRepository) {
         this.itemRepository = itemRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryActivityRepository = inventoryActivityRepository;
@@ -149,13 +156,14 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         var item = itemRepository.findById(command.itemId())
                 .orElseThrow(() -> new IllegalArgumentException("Item with ID " + command.itemId() + " does not exist"));
 
+        var previousStock = item.getStock().getCurrentStock();
         item.registerAdjustment(command.amount(), command.reason(), command.date());
         itemRepository.save(item);
 
         var movement = new StockMovement(command.itemId(), null, MovementType.ADJUSTMENT, command.amount(), command.date(), command.reason());
         this.stockMovementRepository.save(movement);
 
-        var description = "Stock adjustment from " + item.getStock().getCurrentStock() + " to " + command.amount() + " for item " + item.getName();
+        var description = "Stock adjustment from " + previousStock + " to " + command.amount() + " for item " + item.getName();
         this.inventoryActivityRepository.save(new InventoryActivity(command.itemId(), ActivityType.STOCK_ADJUSTMENT, description, command.date()));
     }
 }

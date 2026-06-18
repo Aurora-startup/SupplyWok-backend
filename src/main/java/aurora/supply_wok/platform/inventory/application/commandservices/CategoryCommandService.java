@@ -1,4 +1,4 @@
-package aurora.supply_wok.platform.inventory.domain.services;
+package aurora.supply_wok.platform.inventory.application.commandservices;
 
 import aurora.supply_wok.platform.inventory.domain.model.aggregates.Category;
 import aurora.supply_wok.platform.inventory.domain.model.commands.CreateCategoryCommand;

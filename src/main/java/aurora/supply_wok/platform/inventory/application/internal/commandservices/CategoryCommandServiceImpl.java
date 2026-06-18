@@ -1,11 +1,11 @@
 package aurora.supply_wok.platform.inventory.application.internal.commandservices;
 
+import aurora.supply_wok.platform.inventory.application.commandservices.CategoryCommandService;
 import aurora.supply_wok.platform.inventory.domain.model.aggregates.Category;
 import aurora.supply_wok.platform.inventory.domain.model.commands.CreateCategoryCommand;
 import aurora.supply_wok.platform.inventory.domain.model.commands.DeleteCategoryCommand;
 import aurora.supply_wok.platform.inventory.domain.model.commands.UpdateCategoryCommand;
-import aurora.supply_wok.platform.inventory.domain.services.CategoryCommandService;
-import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.CategoryRepository;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.CategoryPersistenceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,9 +13,9 @@ import java.util.Optional;
 @Service
 public class CategoryCommandServiceImpl implements CategoryCommandService {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryPersistenceRepository categoryRepository;
 
-    public CategoryCommandServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryCommandServiceImpl(CategoryPersistenceRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
