@@ -2,10 +2,10 @@ package aurora.supply_wok.platform.inventory.domain.model.commands;
 
 import aurora.supply_wok.platform.inventory.domain.model.entities.Stock;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.RestaurantId;
+import aurora.supply_wok.platform.inventory.domain.model.valueobjects.SupplierId;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.UnitOfMeasure;
-import org.hibernate.query.sqm.sql.SqmToSqlAstConverter;
 
-public record CreateItemCommand(RestaurantId restaurantId, String name, String brand, UnitOfMeasure unit, String imageUrl, Stock stock) {
+public record CreateItemCommand (Long categoryId, RestaurantId restaurantId, SupplierId supplierId, String name, String brand, UnitOfMeasure unitOfMeasure, String imageUrl, Stock stock) {
 
     public CreateItemCommand {
         if (restaurantId == null) {
@@ -17,7 +17,7 @@ public record CreateItemCommand(RestaurantId restaurantId, String name, String b
         if (brand == null || brand.isEmpty()) {
             throw new IllegalArgumentException("brand cannot be null or empty");
         }
-        if (unit == null) {
+        if (unitOfMeasure == null) {
             throw new IllegalArgumentException("unit cannot be null");
         }
         if (stock == null) {

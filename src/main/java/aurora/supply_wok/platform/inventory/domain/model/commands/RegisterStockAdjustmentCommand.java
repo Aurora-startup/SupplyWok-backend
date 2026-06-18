@@ -4,9 +4,13 @@ import aurora.supply_wok.platform.inventory.domain.model.valueobjects.SupplierId
 
 import java.time.LocalDateTime;
 
-public record RegisterStockAdjustmentCommand(SupplierId supplierId, double amount, LocalDateTime date, String reason) {
+public record RegisterStockAdjustmentCommand(Long itemId, SupplierId supplierId, double amount, LocalDateTime date, String reason) {
 
     public RegisterStockAdjustmentCommand {
+        if(itemId==null)
+        {
+            throw new IllegalArgumentException("itemId cannot be null");
+        }
         if (amount < 0) {
             throw new IllegalArgumentException("amount cannot be negative");
         }

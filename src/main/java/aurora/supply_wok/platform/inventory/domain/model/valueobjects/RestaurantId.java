@@ -9,4 +9,8 @@ public record RestaurantId(Long restaurantId) {
             throw new IllegalArgumentException("RestaurantId cannot be null or less than 0");
         }
     }
+
+    public RestaurantId() {
+        this(0L);
+    }
 }

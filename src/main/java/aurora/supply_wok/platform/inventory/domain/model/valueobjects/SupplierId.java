@@ -10,5 +10,8 @@ public record SupplierId(Long supplierId) {
         }
     }
 
+    public SupplierId() {
+        this(0L);
+    }
 
 }

@@ -1,37 +1,38 @@
 package aurora.supply_wok.platform.inventory.domain.model.entities;
 
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.StockStatus;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Embeddable
 public class Stock {
 
-
-    private Long id;
-    private Long itemId;
+    @Column(name = "current_stock", nullable = false)
     private double currentStock;
-    private double maximumStockLevel;
-    private double minimumStockLevel;
-    private StockStatus stockStatus;
-    private Long stockMovementHistoryId;
 
-    public Stock(double currentStock, double maximumStockLevel, double minimumStockLevel,
-     Long stockMovementHistoryId)
+    @Min(0)
+    @Column(name = "max_stock_level", nullable = false)
+    private double maximumStockLevel;
+
+    @Min(0)
+    @Column(name = "min_stock_level", nullable = false)
+    private double minimumStockLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stock_status", nullable = false)
+    private StockStatus stockStatus;
+
+    public Stock() {
+
+    }
+
+    public Stock(double currentStock, double maximumStockLevel, double minimumStockLevel)
     {
-        if (currentStock < 0 || maximumStockLevel < 0 || minimumStockLevel < 0)
-        {
-            throw new IllegalArgumentException("Stock levels cannot be negative");
-        }
-        if (stockMovementHistoryId == null || stockMovementHistoryId < 0)
-        {
-            throw new IllegalArgumentException("Stock movement history ID cannot be negative or null");
-        }
         this.currentStock = currentStock;
         this.maximumStockLevel = maximumStockLevel;
         this.minimumStockLevel = minimumStockLevel;
-        this.stockMovementHistoryId = stockMovementHistoryId;
         updateStockStatus();
     }
 
@@ -107,7 +108,5 @@ public class Stock {
         minimumStockLevel = level;
         updateStockStatus();
     }
-
-
 
 }

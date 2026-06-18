@@ -7,15 +7,15 @@ import aurora.supply_wok.platform.inventory.domain.model.valueobjects.UnitOfMeas
 
 import java.util.List;
 
-public record UpdateItemCommand(Long itemId, Long categoryId, List<SupplierId> suppliers, RestaurantId restaurantId, String name, String brand, String imageUrl, UnitOfMeasure unitOfMeasure, Stock stock) {
+public record UpdateItemCommand(Long itemId, Long categoryId, SupplierId supplierId, RestaurantId restaurantId, String name, String brand, String imageUrl, UnitOfMeasure unitOfMeasure, Stock stock) {
 
     public UpdateItemCommand {
 
         if (itemId == null || itemId < 0) {
             throw new IllegalArgumentException("itemId cannot be null or empty");
         }
-        if (suppliers == null || suppliers.isEmpty()) {
-            throw new IllegalArgumentException("suppliers cannot be null or empty");
+        if (supplierId == null) {
+            throw new IllegalArgumentException("SupplierId cannot be null or empty");
         }
         if (restaurantId == null) {
             throw new IllegalArgumentException("restaurantId cannot be null");

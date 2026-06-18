@@ -4,9 +4,13 @@ import aurora.supply_wok.platform.inventory.domain.model.valueobjects.SupplierId
 
 import java.time.LocalDateTime;
 
-public record RegisterStockEntryCommand(SupplierId supplierId, double amount, LocalDateTime date, String reason) {
+public record RegisterStockEntryCommand(Long itemId, SupplierId supplierId, double amount, LocalDateTime date, String reason) {
 
     public RegisterStockEntryCommand {
+        if(itemId==null)
+        {
+            throw new IllegalArgumentException("itemId cannot be null");
+        }
         if (supplierId == null) {
             throw new IllegalArgumentException("supplierId cannot be null");
         }
