@@ -5,7 +5,7 @@ import aurora.supply_wok.platform.iot.domain.model.commands.CreateSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.commands.DeleteSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.commands.UpdateSensorCommand;
 import aurora.supply_wok.platform.iot.application.commandservices.SensorCommandService;
-import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorRepository;
+import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorPersistenceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,15 +17,15 @@ import java.util.Optional;
 @Service
 public class SensorCommandServiceImpl implements SensorCommandService {
 
-    private final SensorRepository sensorRepository;
+    private final SensorPersistenceRepository sensorPersistenceRepository;
 
     /**
      * Constructs the SensorCommandServiceImpl.
      *
-     * @param sensorRepository the repository for Sensor persistence
+     * @param sensorPersistenceRepository the repository for Sensor persistence
      */
-    public SensorCommandServiceImpl(SensorRepository sensorRepository) {
-        this.sensorRepository = sensorRepository;
+    public SensorCommandServiceImpl(SensorPersistenceRepository sensorPersistenceRepository) {
+        this.sensorPersistenceRepository = sensorPersistenceRepository;
     }
 
     /**
@@ -39,7 +39,7 @@ public class SensorCommandServiceImpl implements SensorCommandService {
     public Long handle(CreateSensorCommand command) {
         var sensor = new Sensor(command);
         try {
-            sensorRepository.save(sensor);
+            sensorPersistenceRepository.save(sensor);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving sensor: " + e.getMessage());
         }
@@ -55,14 +55,14 @@ public class SensorCommandServiceImpl implements SensorCommandService {
      */
     @Override
     public Optional<Sensor> handle(UpdateSensorCommand command) {
-        var result = sensorRepository.findById(command.sensorId());
+        var result = sensorPersistenceRepository.findById(command.sensorId());
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist");
         }
         var sensor = result.get();
         sensor.updateSensor(command);
         try {
-            sensorRepository.save(sensor);
+            sensorPersistenceRepository.save(sensor);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while updating sensor: " + e.getMessage());
         }
@@ -77,11 +77,11 @@ public class SensorCommandServiceImpl implements SensorCommandService {
      */
     @Override
     public void handle(DeleteSensorCommand command) {
-        if (!sensorRepository.existsById(command.sensorId())) {
+        if (!sensorPersistenceRepository.existsById(command.sensorId())) {
             throw new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist");
         }
         try {
-            sensorRepository.deleteById(command.sensorId());
+            sensorPersistenceRepository.deleteById(command.sensorId());
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while deleting sensor: " + e.getMessage());
         }

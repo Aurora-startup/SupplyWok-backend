@@ -7,11 +7,11 @@ import jakarta.validation.constraints.NotNull;
 @Schema(
     name = "CreateRestaurantAlertRequest",
     description = "Request payload for creating a new restaurant alert",
-    example = "{\"severity\": \"CRITICAL\", \"detail\": \"Sensor value exceeded safety limit.\", \"sensorId\": 1, \"sensorName\": \"Kitchen Temp Sensor\"}"
+    example = "{\"severity\": \"Critical\", \"detail\": \"Sensor value exceeded safety limit.\", \"sensorId\": 1}"
 )
 public record CreateRestaurantAlertResource(
     @NotBlank
-    @Schema(description = "Alert severity level", example = "CRITICAL", allowableValues = {"INFO", "WARNING", "CRITICAL"})
+    @Schema(description = "Alert severity level", example = "Critical", allowableValues = {"Low", "Medium", "High", "Critical"})
     String severity,
 
     @NotBlank
@@ -20,10 +20,6 @@ public record CreateRestaurantAlertResource(
 
     @NotNull
     @Schema(description = "Sensor identifier", example = "1")
-    Long sensorId,
-
-    @NotBlank
-    @Schema(description = "Sensor name", example = "Kitchen Temp Sensor")
-    String sensorName
+    Long sensorId
 ) {
 }

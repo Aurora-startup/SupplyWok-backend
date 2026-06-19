@@ -1,27 +1,41 @@
 package aurora.supply_wok.platform.alerts.application.internal.commandservices;
 
 import aurora.supply_wok.platform.alerts.application.commandservices.AlertCommandService;
+import aurora.supply_wok.platform.alerts.domain.model.aggregates.Alert;
 import aurora.supply_wok.platform.alerts.domain.model.aggregates.RestaurantAlert;
 import aurora.supply_wok.platform.alerts.domain.model.aggregates.SupplierAlert;
+import aurora.supply_wok.platform.alerts.domain.model.commands.AcknowledgeAlertCommand;
+import aurora.supply_wok.platform.alerts.domain.model.commands.CreateAlertRestaurantFromInventoryCommand;
 import aurora.supply_wok.platform.alerts.domain.model.commands.CreateRestaurantAlertCommand;
 import aurora.supply_wok.platform.alerts.domain.model.commands.CreateSupplierAlertCommand;
-import aurora.supply_wok.platform.alerts.infrastructure.persistence.jpa.repositories.AlertRepository;
+import aurora.supply_wok.platform.alerts.domain.model.valueobjects.EAlertSeverity;
+import aurora.supply_wok.platform.alerts.infrastructure.persistence.jpa.repositories.AlertPersistenceRepository;
+import aurora.supply_wok.platform.inventory.interfaces.acl.InventoryContextFacade;
+import aurora.supply_wok.platform.iot.interfaces.acl.IotContextFacade;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AlertCommandServiceImpl implements AlertCommandService {
 
-    private final AlertRepository alertRepository;
+    private final AlertPersistenceRepository alertPersistenceRepository;
+    private final IotContextFacade iotContextFacade;
+    private final InventoryContextFacade inventoryContextFacade;
 
-    public AlertCommandServiceImpl(AlertRepository alertRepository) {
-        this.alertRepository = alertRepository;
+    public AlertCommandServiceImpl(AlertPersistenceRepository alertPersistenceRepository,
+                                   IotContextFacade iotContextFacade,
+                                   InventoryContextFacade inventoryContextFacade) {
+        this.alertPersistenceRepository = alertPersistenceRepository;
+        this.iotContextFacade = iotContextFacade;
+        this.inventoryContextFacade = inventoryContextFacade;
     }
 
     @Override
     public Long handle(CreateSupplierAlertCommand command) {
         var supplierAlert = new SupplierAlert(command);
         try {
-            alertRepository.save(supplierAlert);
+            alertPersistenceRepository.save(supplierAlert);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving supplier alert: " + e.getMessage());
         }
@@ -30,12 +44,54 @@ public class AlertCommandServiceImpl implements AlertCommandService {
 
     @Override
     public Long handle(CreateRestaurantAlertCommand command) {
-        var restaurantAlert = new RestaurantAlert(command);
+        var sensorName = iotContextFacade.fetchSensorNameById(command.sensorId());
+        if (sensorName.isBlank()) {
+            throw new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist.");
+        }
+
+        var restaurantAlert = new RestaurantAlert(command.severity(), command.detail(), command.sensorId(), sensorName);
         try {
-            alertRepository.save(restaurantAlert);
+            alertPersistenceRepository.save(restaurantAlert);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving restaurant alert: " + e.getMessage());
         }
         return restaurantAlert.getId();
+    }
+
+    @Override
+    public Optional<Alert> handle(CreateAlertRestaurantFromInventoryCommand command) {
+        var sensorLastValue = iotContextFacade.fetchSensorLastValueById(command.sensorId())
+                .orElseThrow(() -> new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist."));
+        var sensorName = iotContextFacade.fetchSensorNameById(command.sensorId());
+        var inventoryStock = inventoryContextFacade.getTotalSupplyStock();
+
+        if (Math.abs(inventoryStock - sensorLastValue) < 0.000001d) {
+            return Optional.empty();
+        }
+
+        var detail = "Inventory stock (" + inventoryStock + ") differs from sensor last value (" + sensorLastValue + ").";
+        var restaurantAlert = new RestaurantAlert(EAlertSeverity.Medium, detail, command.sensorId(), sensorName);
+        try {
+            alertPersistenceRepository.save(restaurantAlert);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while saving restaurant alert: " + e.getMessage());
+        }
+        return Optional.of(restaurantAlert);
+    }
+
+    @Override
+    public Optional<Alert> handle(AcknowledgeAlertCommand command) {
+        var alert = alertPersistenceRepository.findById(command.alertId());
+        if (alert.isEmpty()) {
+            return Optional.empty();
+        }
+
+        alert.get().acknowledge();
+        try {
+            alertPersistenceRepository.save(alert.get());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error while acknowledging alert: " + e.getMessage());
+        }
+        return alert;
     }
 }

@@ -7,6 +7,8 @@ import aurora.supply_wok.platform.iot.application.commandservices.SensorCommandS
 import aurora.supply_wok.platform.iot.application.queryservices.SensorQueryService;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * ACL facade that exposes IoT bounded context capabilities to other bounded contexts.
  *
@@ -73,5 +75,16 @@ public class IotContextFacade {
         var query = new GetSensorByIdQuery(sensorId);
         var sensor = sensorQueryService.handle(query);
         return sensor.map(s -> s.isEnabled()).orElse(false);
+    }
+
+    /**
+     * Fetches the last sensor value by its identifier.
+     *
+     * @param sensorId the sensor identifier
+     * @return the last recorded value when the sensor exists
+     */
+    public Optional<Double> fetchSensorLastValueById(Long sensorId) {
+        var query = new GetSensorByIdQuery(sensorId);
+        return sensorQueryService.handle(query).map(sensor -> sensor.getLastValue());
     }
 }

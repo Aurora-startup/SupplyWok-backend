@@ -37,6 +37,6 @@ public class RestaurantAlert extends Alert {
     public RestaurantAlert(CreateRestaurantAlertCommand command) {
         super(command.severity(), command.detail());
         this.sensorId = command.sensorId();
-        this.sensorName = command.sensorName();
+        this.sensorName = "";
     }
 }

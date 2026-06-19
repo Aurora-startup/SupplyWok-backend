@@ -2,6 +2,7 @@ package aurora.supply_wok.platform.alerts.interfaces.rest;
 
 import aurora.supply_wok.platform.alerts.application.commandservices.AlertCommandService;
 import aurora.supply_wok.platform.alerts.application.queryservices.AlertQueryService;
+import aurora.supply_wok.platform.alerts.domain.model.aggregates.SupplierAlert;
 import aurora.supply_wok.platform.alerts.domain.model.queries.GetAlertByIdQuery;
 import aurora.supply_wok.platform.alerts.domain.model.queries.GetAllSupplierAlertsQuery;
 import aurora.supply_wok.platform.alerts.interfaces.rest.resources.AlertResource;
@@ -74,7 +75,7 @@ public class SupplierAlertsController {
         var query = new GetAlertByIdQuery(alertId);
         var alert = alertQueryService.handle(query);
 
-        if (alert.isEmpty()) {
+        if (alert.isEmpty() || !(alert.get() instanceof SupplierAlert)) {
             return ResponseEntity.notFound().build();
         }
 
@@ -97,5 +98,32 @@ public class SupplierAlertsController {
                 .map(AlertResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(resources);
+    }
+
+    @PostMapping("/{alertId}/acknowledge")
+    @Operation(summary = "Acknowledge supplier alert", description = "Acknowledges a supplier alert by setting its status to Acknowledged.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Supplier alert acknowledged successfully", content = @Content(schema = @Schema(implementation = AlertResource.class))),
+        @ApiResponse(responseCode = "404", description = "Supplier alert not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    public ResponseEntity<AlertResource> acknowledgeSupplierAlert(
+            @PathVariable @Parameter(description = "Supplier Alert ID", example = "1", required = true) Long alertId
+    ) {
+        var currentAlert = alertQueryService.handle(new GetAlertByIdQuery(alertId));
+        if (currentAlert.isEmpty() || !(currentAlert.get() instanceof SupplierAlert)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            var acknowledged = alertCommandService.handle(new aurora.supply_wok.platform.alerts.domain.model.commands.AcknowledgeAlertCommand(alertId));
+            if (acknowledged.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(AlertResourceFromEntityAssembler.toResourceFromEntity(acknowledged.get()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

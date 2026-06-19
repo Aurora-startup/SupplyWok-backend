@@ -38,14 +38,10 @@ public abstract class Alert extends AuditableAbstractAggregateRoot<Alert> {
     protected Alert(EAlertSeverity severity, String detail) {
         this.severity = severity;
         this.detail = detail;
-        this.status = EAlertStatus.UNREAD;
+        this.status = EAlertStatus.Pending;
     }
 
-    public void markAsRead() {
-        this.status = EAlertStatus.READ;
-    }
-
-    public void resolve() {
-        this.status = EAlertStatus.RESOLVED;
+    public void acknowledge() {
+        this.status = EAlertStatus.Acknowledged;
     }
 }

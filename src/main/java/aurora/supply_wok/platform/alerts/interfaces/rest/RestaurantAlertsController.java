@@ -2,11 +2,14 @@ package aurora.supply_wok.platform.alerts.interfaces.rest;
 
 import aurora.supply_wok.platform.alerts.application.commandservices.AlertCommandService;
 import aurora.supply_wok.platform.alerts.application.queryservices.AlertQueryService;
+import aurora.supply_wok.platform.alerts.domain.model.aggregates.RestaurantAlert;
 import aurora.supply_wok.platform.alerts.domain.model.queries.GetAlertByIdQuery;
 import aurora.supply_wok.platform.alerts.domain.model.queries.GetAllRestaurantAlertsQuery;
 import aurora.supply_wok.platform.alerts.interfaces.rest.resources.AlertResource;
+import aurora.supply_wok.platform.alerts.interfaces.rest.resources.CreateAlertRestaurantFromInventoryResource;
 import aurora.supply_wok.platform.alerts.interfaces.rest.resources.CreateRestaurantAlertResource;
 import aurora.supply_wok.platform.alerts.interfaces.rest.transform.AlertResourceFromEntityAssembler;
+import aurora.supply_wok.platform.alerts.interfaces.rest.transform.CreateAlertRestaurantFromInventoryCommandFromResourceAssembler;
 import aurora.supply_wok.platform.alerts.interfaces.rest.transform.CreateRestaurantAlertCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,6 +65,29 @@ public class RestaurantAlertsController {
         }
     }
 
+    @PostMapping("/inventory")
+    @Operation(summary = "Create restaurant alert from inventory", description = "Creates a restaurant alert if inventory stock differs from the sensor last value.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Restaurant alert created successfully", content = @Content(schema = @Schema(implementation = AlertResource.class))),
+        @ApiResponse(responseCode = "204", description = "No alert generated because inventory and sensor values match"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    public ResponseEntity<AlertResource> createRestaurantAlertFromInventory(@Valid @RequestBody CreateAlertRestaurantFromInventoryResource resource) {
+        try {
+            var command = CreateAlertRestaurantFromInventoryCommandFromResourceAssembler.toCommandFromResource(resource);
+            var alert = alertCommandService.handle(command);
+
+            if (alert.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            var alertResource = AlertResourceFromEntityAssembler.toResourceFromEntity(alert.get());
+            return new ResponseEntity<>(alertResource, HttpStatus.CREATED);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/{alertId}")
     @Operation(summary = "Get restaurant alert by ID", description = "Retrieves a specific restaurant alert.")
     @ApiResponses(value = {
@@ -74,7 +100,7 @@ public class RestaurantAlertsController {
         var query = new GetAlertByIdQuery(alertId);
         var alert = alertQueryService.handle(query);
 
-        if (alert.isEmpty()) {
+        if (alert.isEmpty() || !(alert.get() instanceof RestaurantAlert)) {
             return ResponseEntity.notFound().build();
         }
 
@@ -97,5 +123,32 @@ public class RestaurantAlertsController {
                 .map(AlertResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(resources);
+    }
+
+    @PostMapping("/{alertId}/acknowledge")
+    @Operation(summary = "Acknowledge restaurant alert", description = "Acknowledges a restaurant alert by setting its status to Acknowledged.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Restaurant alert acknowledged successfully", content = @Content(schema = @Schema(implementation = AlertResource.class))),
+        @ApiResponse(responseCode = "404", description = "Restaurant alert not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
+    public ResponseEntity<AlertResource> acknowledgeRestaurantAlert(
+            @PathVariable @Parameter(description = "Restaurant Alert ID", example = "1", required = true) Long alertId
+    ) {
+        var currentAlert = alertQueryService.handle(new GetAlertByIdQuery(alertId));
+        if (currentAlert.isEmpty() || !(currentAlert.get() instanceof RestaurantAlert)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            var acknowledged = alertCommandService.handle(new aurora.supply_wok.platform.alerts.domain.model.commands.AcknowledgeAlertCommand(alertId));
+            if (acknowledged.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(AlertResourceFromEntityAssembler.toResourceFromEntity(acknowledged.get()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

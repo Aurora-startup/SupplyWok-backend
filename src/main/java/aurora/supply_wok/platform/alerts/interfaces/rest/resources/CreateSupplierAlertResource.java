@@ -6,11 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(
     name = "CreateSupplierAlertRequest",
     description = "Request payload for creating a new supplier alert",
-    example = "{\"severity\": \"WARNING\", \"detail\": \"Supplier has delayed a critical shipment.\"}"
+    example = "{\"severity\": \"High\", \"detail\": \"Supplier has delayed a critical shipment.\"}"
 )
 public record CreateSupplierAlertResource(
     @NotBlank
-    @Schema(description = "Alert severity level", example = "WARNING", allowableValues = {"INFO", "WARNING", "CRITICAL"})
+    @Schema(description = "Alert severity level", example = "High", allowableValues = {"Low", "Medium", "High", "Critical"})
     String severity,
 
     @NotBlank

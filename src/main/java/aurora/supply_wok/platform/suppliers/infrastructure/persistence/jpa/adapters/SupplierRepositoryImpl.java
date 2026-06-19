@@ -6,6 +6,7 @@ import aurora.supply_wok.platform.suppliers.infrastructure.persistence.jpa.assem
 import aurora.supply_wok.platform.suppliers.infrastructure.persistence.jpa.repositories.SupplierPersistenceRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,6 +19,13 @@ public class SupplierRepositoryImpl implements SupplierRepository {
 
     public SupplierRepositoryImpl(SupplierPersistenceRepository supplierPersistenceRepository) {
         this.supplierPersistenceRepository = supplierPersistenceRepository;
+    }
+
+    @Override
+    public List<Supplier> findAll() {
+        return supplierPersistenceRepository.findAll().stream()
+                .map(SupplierPersistenceAssembler::toDomainFromPersistence)
+                .toList();
     }
 
     @Override

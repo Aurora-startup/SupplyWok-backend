@@ -16,7 +16,15 @@ public final class SupplierPersistenceAssembler {
 
         var supplier = new Supplier();
         supplier.setId(entity.getId());
+        supplier.setUuid(entity.getUuid());
         supplier.setName(entity.getName());
+        supplier.setContactName(entity.getContactName());
+        supplier.setEmail(entity.getEmail());
+        supplier.setPhone(entity.getPhone());
+        supplier.setCategory(entity.getCategory());
+        supplier.setLinkedDate(entity.getLinkedDate());
+        supplier.setSla(entity.getSla());
+        supplier.setResponseTime(entity.getResponseTime());
         return supplier;
     }
 
@@ -27,7 +35,15 @@ public final class SupplierPersistenceAssembler {
         if (supplier.getId() != null) {
             entity.setId(supplier.getId());
         }
+        entity.setUuid(supplier.getUuid());
         entity.setName(supplier.getName());
+        entity.setContactName(supplier.getContactName());
+        entity.setEmail(supplier.getEmail());
+        entity.setPhone(supplier.getPhone());
+        entity.setCategory(supplier.getCategory());
+        entity.setLinkedDate(supplier.getLinkedDate());
+        entity.setSla(supplier.getSla());
+        entity.setResponseTime(supplier.getResponseTime());
         return entity;
     }
 }
