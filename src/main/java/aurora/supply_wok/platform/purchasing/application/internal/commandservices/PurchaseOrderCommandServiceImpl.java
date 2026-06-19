@@ -11,7 +11,7 @@ import aurora.supply_wok.platform.purchasing.domain.model.entities.PurchaseOrder
 import aurora.supply_wok.platform.purchasing.domain.model.valueobjects.EPurchaseOrderPriority;
 import aurora.supply_wok.platform.purchasing.domain.model.valueobjects.EPurchaseOrderStatus;
 import aurora.supply_wok.platform.purchasing.domain.repositories.PurchaseOrderRepository;
-import aurora.supply_wok.platform.suppliers.interfaces.acl.SuppliersContextFacade;
+import aurora.supply_wok.platform.purchasing.application.internal.outboundservices.acl.ExternalSupplierService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,18 +28,18 @@ import java.util.Optional;
 public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandService {
 
     private final PurchaseOrderRepository purchaseOrderRepository;
-    private final SuppliersContextFacade suppliersContextFacade;
+    private final ExternalSupplierService externalSupplierService;
 
     public PurchaseOrderCommandServiceImpl(PurchaseOrderRepository purchaseOrderRepository,
-                                           SuppliersContextFacade suppliersContextFacade) {
+                                           ExternalSupplierService externalSupplierService) {
         this.purchaseOrderRepository = purchaseOrderRepository;
-        this.suppliersContextFacade = suppliersContextFacade;
+        this.externalSupplierService = externalSupplierService;
     }
 
     @Override
     public Optional<PurchaseOrder> handle(CreatePurchaseOrderCommand command) {
-        var supplierIdentity = suppliersContextFacade.getSupplierIdentityById(command.supplierId());
-        if (supplierIdentity.isEmpty()) {
+        var supplierName = externalSupplierService.fetchSupplierNameById(command.supplierId());
+        if (supplierName.isEmpty()) {
             return Optional.empty();
         }
 
@@ -63,7 +63,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
                 items
         );
 
-        var order = new PurchaseOrder(command, supplierIdentity.get().name(), priority, status, items);
+        var order = new PurchaseOrder(command, supplierName.get(), priority, status, items);
         return Optional.of(purchaseOrderRepository.save(order));
     }
 
@@ -74,8 +74,8 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             return Optional.empty();
         }
 
-        var supplierIdentity = suppliersContextFacade.getSupplierIdentityById(command.supplierId());
-        if (supplierIdentity.isEmpty()) {
+        var supplierName = externalSupplierService.fetchSupplierNameById(command.supplierId());
+        if (supplierName.isEmpty()) {
             return Optional.empty();
         }
 
@@ -102,7 +102,7 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         order.get().updateInformation(
                 command.code().trim(),
                 command.supplierId(),
-                supplierIdentity.get().name().trim(),
+                supplierName.get().trim(),
                 command.restaurantName().trim(),
                 command.orderDate(),
                 command.estimatedDate(),

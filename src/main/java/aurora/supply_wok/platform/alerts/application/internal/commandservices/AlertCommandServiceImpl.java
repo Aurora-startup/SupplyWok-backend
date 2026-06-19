@@ -9,9 +9,9 @@ import aurora.supply_wok.platform.alerts.domain.model.commands.CreateAlertRestau
 import aurora.supply_wok.platform.alerts.domain.model.commands.CreateRestaurantAlertCommand;
 import aurora.supply_wok.platform.alerts.domain.model.commands.CreateSupplierAlertCommand;
 import aurora.supply_wok.platform.alerts.domain.model.valueobjects.EAlertSeverity;
+import aurora.supply_wok.platform.alerts.application.internal.outboundservices.acl.ExternalInventoryService;
+import aurora.supply_wok.platform.alerts.application.internal.outboundservices.acl.ExternalIotService;
 import aurora.supply_wok.platform.alerts.infrastructure.persistence.jpa.repositories.AlertPersistenceRepository;
-import aurora.supply_wok.platform.inventory.interfaces.acl.InventoryContextFacade;
-import aurora.supply_wok.platform.iot.interfaces.acl.IotContextFacade;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,15 +20,15 @@ import java.util.Optional;
 public class AlertCommandServiceImpl implements AlertCommandService {
 
     private final AlertPersistenceRepository alertPersistenceRepository;
-    private final IotContextFacade iotContextFacade;
-    private final InventoryContextFacade inventoryContextFacade;
+    private final ExternalIotService externalIotService;
+    private final ExternalInventoryService externalInventoryService;
 
     public AlertCommandServiceImpl(AlertPersistenceRepository alertPersistenceRepository,
-                                   IotContextFacade iotContextFacade,
-                                   InventoryContextFacade inventoryContextFacade) {
+                                   ExternalIotService externalIotService,
+                                   ExternalInventoryService externalInventoryService) {
         this.alertPersistenceRepository = alertPersistenceRepository;
-        this.iotContextFacade = iotContextFacade;
-        this.inventoryContextFacade = inventoryContextFacade;
+        this.externalIotService = externalIotService;
+        this.externalInventoryService = externalInventoryService;
     }
 
     @Override
@@ -44,12 +44,12 @@ public class AlertCommandServiceImpl implements AlertCommandService {
 
     @Override
     public Long handle(CreateRestaurantAlertCommand command) {
-        var sensorName = iotContextFacade.fetchSensorNameById(command.sensorId());
-        if (sensorName.isBlank()) {
+        var sensorName = externalIotService.fetchSensorNameById(command.sensorId());
+        if (sensorName.isEmpty()) {
             throw new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist.");
         }
 
-        var restaurantAlert = new RestaurantAlert(command.severity(), command.detail(), command.sensorId(), sensorName);
+        var restaurantAlert = new RestaurantAlert(command.severity(), command.detail(), command.sensorId(), sensorName.get());
         try {
             alertPersistenceRepository.save(restaurantAlert);
         } catch (Exception e) {
@@ -60,10 +60,11 @@ public class AlertCommandServiceImpl implements AlertCommandService {
 
     @Override
     public Optional<Alert> handle(CreateAlertRestaurantFromInventoryCommand command) {
-        var sensorLastValue = iotContextFacade.fetchSensorLastValueById(command.sensorId())
+        var sensorLastValue = externalIotService.fetchSensorLastValueById(command.sensorId())
                 .orElseThrow(() -> new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist."));
-        var sensorName = iotContextFacade.fetchSensorNameById(command.sensorId());
-        var inventoryStock = inventoryContextFacade.getTotalSupplyStock();
+        var sensorName = externalIotService.fetchSensorNameById(command.sensorId())
+                .orElseThrow(() -> new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist."));
+        var inventoryStock = externalInventoryService.getTotalSupplyStock();
 
         if (Math.abs(inventoryStock - sensorLastValue) < 0.000001d) {
             return Optional.empty();
