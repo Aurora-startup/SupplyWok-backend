@@ -3,8 +3,8 @@ package aurora.supply_wok.platform.iot.application.internal.queryservices;
 import aurora.supply_wok.platform.iot.domain.model.aggregates.Sensor;
 import aurora.supply_wok.platform.iot.domain.model.queries.GetAllSensorsQuery;
 import aurora.supply_wok.platform.iot.domain.model.queries.GetSensorByIdQuery;
-import aurora.supply_wok.platform.iot.domain.services.SensorQueryService;
-import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorRepository;
+import aurora.supply_wok.platform.iot.application.queryservices.SensorQueryService;
+import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorPersistenceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +17,15 @@ import java.util.Optional;
 @Service
 public class SensorQueryServiceImpl implements SensorQueryService {
 
-    private final SensorRepository sensorRepository;
+    private final SensorPersistenceRepository sensorPersistenceRepository;
 
     /**
      * Constructs the SensorQueryServiceImpl.
      *
-     * @param sensorRepository the repository for Sensor queries
+     * @param sensorPersistenceRepository the repository for Sensor queries
      */
-    public SensorQueryServiceImpl(SensorRepository sensorRepository) {
-        this.sensorRepository = sensorRepository;
+    public SensorQueryServiceImpl(SensorPersistenceRepository sensorPersistenceRepository) {
+        this.sensorPersistenceRepository = sensorPersistenceRepository;
     }
 
     /**
@@ -36,7 +36,7 @@ public class SensorQueryServiceImpl implements SensorQueryService {
      */
     @Override
     public List<Sensor> handle(GetAllSensorsQuery query) {
-        return this.sensorRepository.findAll();
+        return this.sensorPersistenceRepository.findAll();
     }
 
     /**
@@ -47,6 +47,6 @@ public class SensorQueryServiceImpl implements SensorQueryService {
      */
     @Override
     public Optional<Sensor> handle(GetSensorByIdQuery query) {
-        return this.sensorRepository.findById(query.sensorId());
+        return this.sensorPersistenceRepository.findById(query.sensorId());
     }
 }
