@@ -4,7 +4,7 @@ import aurora.supply_wok.platform.iot.domain.model.aggregates.Sensor;
 import aurora.supply_wok.platform.iot.domain.model.commands.CreateSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.commands.DeleteSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.commands.UpdateSensorCommand;
-import aurora.supply_wok.platform.iot.domain.services.SensorCommandService;
+import aurora.supply_wok.platform.iot.application.commandservices.SensorCommandService;
 import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorRepository;
 import org.springframework.stereotype.Service;
 

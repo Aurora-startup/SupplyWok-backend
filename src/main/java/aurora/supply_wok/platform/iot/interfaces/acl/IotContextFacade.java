@@ -3,8 +3,8 @@ package aurora.supply_wok.platform.iot.interfaces.acl;
 import aurora.supply_wok.platform.iot.domain.model.commands.CreateSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.queries.GetSensorByIdQuery;
 import aurora.supply_wok.platform.iot.domain.model.valueobjects.ESensorType;
-import aurora.supply_wok.platform.iot.domain.services.SensorCommandService;
-import aurora.supply_wok.platform.iot.domain.services.SensorQueryService;
+import aurora.supply_wok.platform.iot.application.commandservices.SensorCommandService;
+import aurora.supply_wok.platform.iot.application.queryservices.SensorQueryService;
 import org.springframework.stereotype.Service;
 
 /**

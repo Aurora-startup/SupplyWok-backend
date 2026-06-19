@@ -3,7 +3,7 @@ package aurora.supply_wok.platform.iot.application.internal.queryservices;
 import aurora.supply_wok.platform.iot.domain.model.aggregates.Sensor;
 import aurora.supply_wok.platform.iot.domain.model.queries.GetAllSensorsQuery;
 import aurora.supply_wok.platform.iot.domain.model.queries.GetSensorByIdQuery;
-import aurora.supply_wok.platform.iot.domain.services.SensorQueryService;
+import aurora.supply_wok.platform.iot.application.queryservices.SensorQueryService;
 import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorRepository;
 import org.springframework.stereotype.Service;
 

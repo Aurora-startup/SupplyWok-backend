@@ -1,4 +1,4 @@
-package aurora.supply_wok.platform.iot.domain.services;
+package aurora.supply_wok.platform.iot.application.queryservices;
 
 import aurora.supply_wok.platform.iot.domain.model.aggregates.Sensor;
 import aurora.supply_wok.platform.iot.domain.model.queries.GetAllSensorsQuery;
