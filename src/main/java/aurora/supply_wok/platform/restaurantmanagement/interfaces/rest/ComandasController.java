@@ -1,5 +1,6 @@
 package aurora.supply_wok.platform.restaurantmanagement.interfaces.rest;
 
+import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.DeleteComandaCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.queries.GetAllComandasQuery;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.queries.GetComandaByIdQuery;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.queries.GetComandasByTableIdQuery;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
+@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE })
 @RestController
 @RequestMapping(value = "/api/v1/comandas", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Comandas", description = "Comanda management endpoints")
@@ -153,7 +155,7 @@ public class ComandasController {
     })
     public ResponseEntity<Void> deleteComanda(
             @PathVariable @Parameter(description = "Comanda unique identifier", example = "1", required = true) Long comandaId) {
-        comandaCommandService.handle(new aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.DeleteComandaCommand(comandaId));
+        comandaCommandService.handle(new DeleteComandaCommand(comandaId));
         return ResponseEntity.ok().build();
     }
 }
