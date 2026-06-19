@@ -11,7 +11,7 @@ import aurora.supply_wok.platform.purchasing.domain.model.entities.PurchaseOrder
 import aurora.supply_wok.platform.purchasing.domain.model.valueobjects.EPurchaseOrderPriority;
 import aurora.supply_wok.platform.purchasing.domain.model.valueobjects.EPurchaseOrderStatus;
 import aurora.supply_wok.platform.purchasing.domain.repositories.PurchaseOrderRepository;
-import aurora.supply_wok.platform.purchasing.application.internal.outboundservices.acl.ExternalSupplierService;
+import aurora.supply_wok.platform.suppliers.interfaces.acl.SuppliersContextFacade;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,17 +28,19 @@ import java.util.Optional;
 public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandService {
 
     private final PurchaseOrderRepository purchaseOrderRepository;
-    private final ExternalSupplierService externalSupplierService;
+    private final SuppliersContextFacade suppliersContextFacade;
 
     public PurchaseOrderCommandServiceImpl(PurchaseOrderRepository purchaseOrderRepository,
-                                           ExternalSupplierService externalSupplierService) {
+                                           SuppliersContextFacade suppliersContextFacade) {
         this.purchaseOrderRepository = purchaseOrderRepository;
-        this.externalSupplierService = externalSupplierService;
+        this.suppliersContextFacade = suppliersContextFacade;
     }
 
     @Override
     public Optional<PurchaseOrder> handle(CreatePurchaseOrderCommand command) {
-        var supplierName = externalSupplierService.fetchSupplierNameById(command.supplierId());
+        var supplierName = suppliersContextFacade.getSupplierIdentityById(command.supplierId())
+                .map(supplierIdentity -> supplierIdentity.name())
+                .filter(name -> !name.isBlank());
         if (supplierName.isEmpty()) {
             return Optional.empty();
         }
@@ -74,7 +76,9 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
             return Optional.empty();
         }
 
-        var supplierName = externalSupplierService.fetchSupplierNameById(command.supplierId());
+        var supplierName = suppliersContextFacade.getSupplierIdentityById(command.supplierId())
+                .map(supplierIdentity -> supplierIdentity.name())
+                .filter(name -> !name.isBlank());
         if (supplierName.isEmpty()) {
             return Optional.empty();
         }
