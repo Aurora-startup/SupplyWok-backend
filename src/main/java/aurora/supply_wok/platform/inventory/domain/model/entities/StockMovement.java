@@ -1,59 +1,50 @@
 package aurora.supply_wok.platform.inventory.domain.model.entities;
 
-import aurora.supply_wok.platform.inventory.domain.model.aggregates.Item;
-import aurora.supply_wok.platform.inventory.domain.model.valueobjects.MovementType;
-import aurora.supply_wok.platform.inventory.domain.model.valueobjects.SupplierId;
-import jakarta.persistence.*;
+import aurora.supply_wok.platform.inventory.domain.model.valueobjects.EMovementType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "stock_movements")
+/**
+ * Stock movement domain entity.
+ */
 @Getter
 public class StockMovement {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter
     private Long id;
 
-    @JoinColumn(name = "item_id", nullable = false)
-    private Long itemId;
-
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "supplierId", column = @Column(name = "supplier_id"))
-    })
-    private SupplierId supplierId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MovementType type;
-
-    @Column(nullable = false)
-    private double amount;
-
-    @Column(nullable = false)
+    private Long supplyId;
+    private EMovementType type;
+    private int amount;
     private LocalDateTime date;
-
-    @Column(nullable = false)
     private String reason;
 
     public StockMovement() {
-
+        this.supplyId = 0L;
+        this.type = EMovementType.Entry;
+        this.amount = 0;
+        this.date = LocalDateTime.now();
+        this.reason = "";
     }
 
-    public StockMovement(Long itemId, SupplierId supplierId, MovementType type, double amount, LocalDateTime date, String reason) {
-        if (itemId == null) throw new IllegalArgumentException("Item cannot be null");
-        if (type == null) throw new IllegalArgumentException("Movement type cannot be null");
-        if (amount <= 0) throw new IllegalArgumentException("Amount must be greater than zero");
-        if (reason == null || reason.isBlank()) throw new IllegalArgumentException("Reason cannot be empty");
+    public StockMovement(Long supplyId, EMovementType type, int amount, LocalDateTime date, String reason) {
+        this();
+        if (supplyId == null || supplyId <= 0) {
+            throw new IllegalArgumentException("Supply id must be greater than zero.");
+        }
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Movement amount must be greater than zero.");
+        }
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("Movement reason cannot be empty.");
+        }
 
-        this.itemId = itemId;
-        this.supplierId = supplierId;
+        this.supplyId = supplyId;
         this.type = type;
         this.amount = amount;
-        this.date = (date != null) ? date : LocalDateTime.now();
-        this.reason = reason;
+        this.date = date == null ? LocalDateTime.now() : date;
+        this.reason = reason.trim();
     }
 }
