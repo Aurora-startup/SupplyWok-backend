@@ -4,7 +4,7 @@ import aurora.supply_wok.platform.iam.application.queryservices.UserQueryService
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
 import aurora.supply_wok.platform.iam.domain.model.queries.GetAllUsersQuery;
 import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByIdQuery;
-import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByUsernameQuery;
+import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByEmailQuery;
 import aurora.supply_wok.platform.iam.domain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
-    public Optional<User> handle(GetUserByUsernameQuery query) {
-        return userRepository.findByUsername(query.username());
+    public Optional<User> handle(GetUserByEmailQuery query) {
+        return userRepository.findByEmail(query.email());
     }
 }

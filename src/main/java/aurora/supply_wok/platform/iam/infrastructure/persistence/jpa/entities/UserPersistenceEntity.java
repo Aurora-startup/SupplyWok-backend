@@ -19,8 +19,9 @@ import java.util.Set;
 @NoArgsConstructor
 public class UserPersistenceEntity extends AuditableAbstractPersistenceEntity {
 
-    @Column(name = "username", nullable = false, unique = true, length = 50)
-    private String username;
+    // Keep the legacy column name to avoid forcing a DB migration while moving IAM to email-based auth.
+    @Column(name = "username", nullable = false, unique = true, length = 120)
+    private String email;
 
     @Column(name = "password", nullable = false, length = 120)
     private String password;

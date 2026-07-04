@@ -8,17 +8,16 @@ import java.util.List;
  */
 @Schema(
     name = "SignUpRequest",
-    description = "User sign-up request with credentials and roles",
-    example = "{\"username\": \"john.doe\", \"password\": \"SecurePass123!\", \"roles\": [\"ROLE_USER\"]}"
+    description = "User sign-up request with email, password, and roles",
+    example = "{\"email\": \"john.doe@example.com\", \"password\": \"SecurePass123!\", \"roles\": [\"ROLE_USER\"]}"
 )
 public record SignUpResource(
     @Schema(
-        description = "Desired username",
-        example = "john.doe",
-        minLength = 3,
-        maxLength = 50
+        description = "User email",
+        example = "john.doe@example.com",
+        maxLength = 120
     )
-    String username,
+    String email,
 
     @Schema(
         description = "User password (minimum 8 characters)",

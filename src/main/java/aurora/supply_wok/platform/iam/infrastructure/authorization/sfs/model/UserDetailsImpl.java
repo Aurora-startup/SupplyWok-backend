@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 public class UserDetailsImpl implements UserDetails {
 
-    private final String username;
+    private final String email;
     @JsonIgnore
     private final String password;
     private final boolean accountNonExpired;
@@ -30,12 +30,12 @@ public class UserDetailsImpl implements UserDetails {
 
     /**
      * This constructor initializes the UserDetailsImpl object.
-     * @param username The username.
+     * @param email The email.
      * @param password The password.
      * @param authorities The authorities.
      */
-    public UserDetailsImpl(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        this.username = username;
+    public UserDetailsImpl(String email, String password, Collection<? extends GrantedAuthority> authorities) {
+        this.email = email;
         this.password = password;
         this.authorities = authorities;
         this.accountNonExpired = true;
@@ -55,9 +55,14 @@ public class UserDetailsImpl implements UserDetails {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         return new UserDetailsImpl(
-                user.getUsername(),
+                user.getEmail(),
                 user.getPassword(),
                 authorities);
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
 }

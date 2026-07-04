@@ -6,20 +6,20 @@ package aurora.supply_wok.platform.iam.application.internal.outboundservices.tok
 public interface TokenService {
 
     /**
-     * Generates a token for a username.
+     * Generates a token for an email principal.
      *
-     * @param username principal username
+     * @param email principal email
      * @return signed token value
      */
-    String generateToken(String username);
+    String generateToken(String email);
 
     /**
-     * Extracts the username from a token.
+     * Extracts the email from a token.
      *
      * @param token token value
-     * @return username embedded in the token
+     * @return email embedded in the token
      */
-    String getUsernameFromToken(String token);
+    String getEmailFromToken(String token);
 
     /**
      * Validates a token.

@@ -7,17 +7,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(
     name = "SignInRequest",
-    description = "User sign-in request with credentials",
-    example = "{\"username\": \"john.doe\", \"password\": \"SecurePass123!\"}"
+    description = "User sign-in request with email and password",
+    example = "{\"email\": \"john.doe@example.com\", \"password\": \"SecurePass123!\"}"
 )
 public record SignInResource(
     @Schema(
-        description = "Username",
-        example = "john.doe",
-        minLength = 3,
-        maxLength = 50
+        description = "User email",
+        example = "john.doe@example.com",
+        maxLength = 120
     )
-    String username,
+    String email,
 
     @Schema(
         description = "User password",

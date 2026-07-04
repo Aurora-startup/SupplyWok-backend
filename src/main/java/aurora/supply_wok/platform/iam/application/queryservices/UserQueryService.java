@@ -3,7 +3,7 @@ package aurora.supply_wok.platform.iam.application.queryservices;
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
 import aurora.supply_wok.platform.iam.domain.model.queries.GetAllUsersQuery;
 import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByIdQuery;
-import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByUsernameQuery;
+import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByEmailQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +29,12 @@ public interface UserQueryService {
     Optional<User> handle(GetUserByIdQuery query);
 
     /**
-     * Handles retrieval of a user by username.
+     * Handles retrieval of a user by email.
      *
-     * @param query username query
+     * @param query email query
      * @return matching user, if found
      */
-    Optional<User> handle(GetUserByUsernameQuery query);
+    Optional<User> handle(GetUserByEmailQuery query);
 
 }
 

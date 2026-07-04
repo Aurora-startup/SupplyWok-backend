@@ -47,7 +47,7 @@ public class AuthenticationController {
 
     /**
      * Handles the sign-in request.
-     * @param signInResource the sign-in request body with username and password.
+     * @param signInResource the sign-in request body with email and password.
      * @return the authenticated user resource with JWT token.
      */
     @PostMapping("/sign-in")
@@ -71,7 +71,7 @@ public class AuthenticationController {
             ),
             @ApiResponse(
                 responseCode = "404",
-                description = "User not found with provided username",
+                description = "User not found with provided email",
                 content = @Content(mediaType = "application/json")
             )
     })
@@ -87,7 +87,7 @@ public class AuthenticationController {
 
     /**
      * Handles the sign-up request.
-     * @param signUpResource the sign-up request body with username, password, and roles.
+     * @param signUpResource the sign-up request body with email, password, and roles.
      * @return the created user resource with assigned roles.
      */
     @PostMapping("/sign-up")
@@ -106,12 +106,12 @@ public class AuthenticationController {
             ),
             @ApiResponse(
                 responseCode = "400",
-                description = "Invalid input data or username already exists",
+                description = "Invalid input data or email already exists",
                 content = @Content(mediaType = "application/json")
             ),
             @ApiResponse(
                 responseCode = "409",
-                description = "Conflict - username already taken",
+                description = "Conflict - email already taken",
                 content = @Content(mediaType = "application/json")
             )
     })
