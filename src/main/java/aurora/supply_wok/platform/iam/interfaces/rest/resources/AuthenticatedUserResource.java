@@ -5,13 +5,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * Resource returned after successful authentication.
  *
- * <p>Contains the authenticated user identifier, email, and the bearer token to be used in
+ * <p>Contains the authenticated user identifier, email, assigned roles, and the bearer token to be used in
  * subsequent API calls.</p>
  */
 @Schema(
     name = "AuthenticatedUserResponse",
     description = "Authenticated user information with JWT token",
-    example = "{\"id\": 1, \"email\": \"john.doe@example.com\", \"token\": \"eyJhbGciOiJIUzI1NiIs...\"}"
+    example = "{\"id\": 1, \"email\": \"john.doe@example.com\", \"roles\": [\"ROLE_RESTAURANT\"], \"token\": \"eyJhbGciOiJIUzI1NiIs...\"}"
 )
 public record AuthenticatedUserResource(
     @Schema(description = "User unique identifier", example = "1")
@@ -19,6 +19,9 @@ public record AuthenticatedUserResource(
 
     @Schema(description = "User email", example = "john.doe@example.com")
     String email,
+
+    @Schema(description = "User assigned roles", example = "[\"ROLE_RESTAURANT\"]")
+    java.util.List<String> roles,
 
     @Schema(description = "JWT Bearer token for authentication", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     String token
