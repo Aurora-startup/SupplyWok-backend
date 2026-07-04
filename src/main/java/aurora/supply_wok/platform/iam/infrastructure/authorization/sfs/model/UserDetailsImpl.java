@@ -1,6 +1,7 @@
 package aurora.supply_wok.platform.iam.infrastructure.authorization.sfs.model;
 
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
+import aurora.supply_wok.platform.iam.domain.model.entities.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -51,7 +52,7 @@ public class UserDetailsImpl implements UserDetails {
      */
     public static UserDetailsImpl build(User user) {
         var authorities = user.getRoles().stream()
-                .map(role -> role.getName().name())
+                .map(Role::getStringName)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
         return new UserDetailsImpl(

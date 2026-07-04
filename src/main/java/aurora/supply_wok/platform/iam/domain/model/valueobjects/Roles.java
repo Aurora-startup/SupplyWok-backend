@@ -7,7 +7,7 @@ package aurora.supply_wok.platform.iam.domain.model.valueobjects;
  * </p>
  */
 public enum Roles {
-    ROLE_USER,
-    ROLE_ADMIN,
-    ROLE_INSTRUCTOR
+    ROLE_RESTAURANT,
+    ROLE_SUPPLIER,
+    ROLE_ADMIN
 }
