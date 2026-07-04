@@ -22,6 +22,12 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     }
 
     @Override
+    public Supplier save(Supplier supplier) {
+        var persisted = supplierPersistenceRepository.save(SupplierPersistenceAssembler.toPersistenceFromDomain(supplier));
+        return SupplierPersistenceAssembler.toDomainFromPersistence(persisted);
+    }
+
+    @Override
     public List<Supplier> findAll() {
         return supplierPersistenceRepository.findAll().stream()
                 .map(SupplierPersistenceAssembler::toDomainFromPersistence)
