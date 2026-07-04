@@ -1,8 +1,8 @@
 package aurora.supply_wok.platform.alerts.domain.model.valueobjects;
 
 public enum EAlertSeverity {
-    Low,
-    Medium,
-    High,
-    Critical
+    LOW,
+    MEDIUM,
+    HIGH,
+    CRITICAL
 }
