@@ -9,22 +9,34 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
+/**
+ * Base class for all aggregate roots that require auditing.
+ *
+ * @param <T> the type of the aggregate root
+ * @summary The class is an abstract class that extends the {@link AbstractAggregateRoot} class and adds auditing fields to the class.
+ */
+@Getter
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> extends AbstractAggregateRoot<T> {
 
     @Id
-    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Getter
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Date createdAt;
-
-    @Getter
     @LastModifiedDate
     @Column(nullable = false)
     private Date updatedAt;
+
+    /**
+     * Registers a domain event.
+     *
+     * @param event the domain event to register
+     */
+    public void addDomainEvent(Object event) {
+        super.registerEvent(event);
+    }
+
 }

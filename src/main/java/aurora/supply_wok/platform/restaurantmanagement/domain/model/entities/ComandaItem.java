@@ -11,11 +11,6 @@ import lombok.Getter;
 @Table(name = "comanda_items")
 public class ComandaItem extends AuditableModel {
 
-    @Id
-    @Getter
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Getter
     @NotNull
     @NotBlank
