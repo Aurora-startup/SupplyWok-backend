@@ -70,7 +70,7 @@ public class AlertCommandServiceImpl implements AlertCommandService {
         }
 
         var detail = "Inventory stock (" + inventoryStock + ") differs from sensor last value (" + sensorLastValue + ").";
-        var restaurantAlert = new RestaurantAlert(EAlertSeverity.Medium, detail, command.sensorId(), sensorName);
+        var restaurantAlert = new RestaurantAlert(EAlertSeverity.MEDIUM, detail, command.sensorId(), sensorName);
         try {
             alertPersistenceRepository.save(restaurantAlert);
         } catch (Exception e) {

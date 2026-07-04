@@ -38,10 +38,10 @@ public abstract class Alert extends AuditableAbstractAggregateRoot<Alert> {
     protected Alert(EAlertSeverity severity, String detail) {
         this.severity = severity;
         this.detail = detail;
-        this.status = EAlertStatus.Pending;
+        this.status = EAlertStatus.PENDING;
     }
 
     public void acknowledge() {
-        this.status = EAlertStatus.Acknowledged;
+        this.status = EAlertStatus.ACKNOWLEDGED;
     }
 }
