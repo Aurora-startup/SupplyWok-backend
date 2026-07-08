@@ -1,6 +1,7 @@
 package aurora.supply_wok.platform.restaurantmanagement.domain.model.aggregates;
 
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.CreateTableCommand;
+import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateTableCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateTableStatusCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.valueobjects.ETableStatus;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
@@ -45,6 +46,12 @@ public class RestaurantTable extends AuditableAbstractAggregateRoot<RestaurantTa
 
     public RestaurantTable updateStatus(UpdateTableStatusCommand command) {
         this.status = command.status();
+        return this;
+    }
+
+    public RestaurantTable update(UpdateTableCommand command) {
+        this.number = command.number();
+        this.capacity = command.capacity();
         return this;
     }
 }

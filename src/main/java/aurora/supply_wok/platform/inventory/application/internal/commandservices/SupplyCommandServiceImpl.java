@@ -34,7 +34,13 @@ public class SupplyCommandServiceImpl implements SupplyCommandService {
             return Optional.empty();
         }
 
-        supply.get().update(command.name(), command.unitOfMeasure(), command.minimumStockLevel(), command.category());
+        supply.get().update(
+                command.name(),
+                command.unitOfMeasure(),
+                command.currentStock(),
+                command.minimumStockLevel(),
+                command.category()
+        );
         return Optional.of(supplyRepository.save(supply.get()));
     }
 

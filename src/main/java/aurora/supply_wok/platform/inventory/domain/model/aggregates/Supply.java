@@ -54,10 +54,17 @@ public class Supply extends AbstractDomainAggregateRoot<Supply> {
         );
     }
 
-    public void update(String name, EUnitOfMeasure unitOfMeasure, int minimumStockLevel, String category) {
+    public void update(String name, EUnitOfMeasure unitOfMeasure, Integer currentStock, int minimumStockLevel, String category) {
         validateCoreData(name, minimumStockLevel, category);
+        if (currentStock != null && currentStock < 0) {
+            throw new IllegalArgumentException("Current stock cannot be negative.");
+        }
+
         this.name = name.trim();
         this.unitOfMeasure = unitOfMeasure;
+        if (currentStock != null) {
+            this.currentStock = currentStock;
+        }
         this.minimumStockLevel = minimumStockLevel;
         this.category = category.trim();
     }

@@ -4,5 +4,9 @@ public enum EAlertSeverity {
     LOW,
     MEDIUM,
     HIGH,
-    CRITICAL
+    CRITICAL,
+    Low,
+    Medium,
+    High,
+    Critical
 }

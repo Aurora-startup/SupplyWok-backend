@@ -17,6 +17,7 @@ public final class UpdateSupplyCommandFromResourceAssembler {
                 supplyId,
                 resource.name(),
                 EUnitOfMeasure.valueOf(resource.unitOfMeasure().trim()),
+                resource.currentStock(),
                 resource.minimumStockLevel(),
                 resource.category()
         );

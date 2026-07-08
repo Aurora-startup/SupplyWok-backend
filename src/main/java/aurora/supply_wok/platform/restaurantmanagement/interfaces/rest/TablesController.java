@@ -7,9 +7,11 @@ import aurora.supply_wok.platform.restaurantmanagement.domain.model.services.Tab
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.services.TableQueryService;
 import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.resources.CreateTableResource;
 import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.resources.TableResource;
+import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.resources.UpdateTableResource;
 import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.resources.UpdateTableStatusResource;
 import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.transform.CreateTableCommandFromResourceAssembler;
 import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.transform.TableResourceFromEntityAssembler;
+import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.transform.UpdateTableCommandFromResourceAssembler;
 import aurora.supply_wok.platform.restaurantmanagement.interfaces.rest.transform.UpdateTableStatusCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -89,6 +91,24 @@ public class TablesController {
                 .map(TableResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(tableResources);
+    }
+
+    @PutMapping("/{tableId}")
+    @Operation(summary = "Update table details", description = "Updates the number and capacity of a restaurant table.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Table updated successfully",
+                    content = @Content(schema = @Schema(implementation = TableResource.class))),
+            @ApiResponse(responseCode = "404", description = "Table not found")
+    })
+    public ResponseEntity<TableResource> updateTable(
+            @PathVariable @Parameter(description = "Table unique identifier", example = "1", required = true) Long tableId,
+            @Valid @RequestBody UpdateTableResource resource) {
+        var command = UpdateTableCommandFromResourceAssembler.toCommandFromResource(tableId, resource);
+        var table = tableCommandService.handle(command);
+        if (table.isEmpty()) return ResponseEntity.notFound().build();
+
+        var tableResource = TableResourceFromEntityAssembler.toResourceFromEntity(table.get());
+        return ResponseEntity.ok(tableResource);
     }
 
     @PutMapping("/{tableId}/status")

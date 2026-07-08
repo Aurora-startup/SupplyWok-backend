@@ -3,6 +3,7 @@ package aurora.supply_wok.platform.restaurantmanagement.application.internal.com
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.aggregates.RestaurantTable;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.CreateTableCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.DeleteTableCommand;
+import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateTableCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateTableStatusCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.services.TableCommandService;
 import aurora.supply_wok.platform.restaurantmanagement.infrastructure.persistence.jpa.repositories.RestaurantTableRepository;
@@ -24,6 +25,17 @@ public class TableCommandServiceImpl implements TableCommandService {
         var table = new RestaurantTable(command);
         tableRepository.save(table);
         return table.getId();
+    }
+
+    @Override
+    public Optional<RestaurantTable> handle(UpdateTableCommand command) {
+        var result = tableRepository.findById(command.tableId());
+        if (result.isEmpty())
+            throw new IllegalArgumentException("Table with id %d not found".formatted(command.tableId()));
+        var table = result.get();
+        table.update(command);
+        tableRepository.save(table);
+        return Optional.of(table);
     }
 
     @Override
