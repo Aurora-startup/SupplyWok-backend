@@ -4,6 +4,9 @@ import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.Add
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.CreateComandaCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateComandaStatusCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.entities.ComandaItem;
+import aurora.supply_wok.platform.restaurantmanagement.domain.model.events.ComandaCreatedEvent;
+import aurora.supply_wok.platform.restaurantmanagement.domain.model.events.ComandaItemAddedEvent;
+import aurora.supply_wok.platform.restaurantmanagement.domain.model.events.ComandaStatusChangedEvent;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.valueobjects.EComandaStatus;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
@@ -49,21 +52,38 @@ public class Comanda extends AuditableAbstractAggregateRoot<Comanda> {
     }
 
     public Comanda updateStatus(UpdateComandaStatusCommand command) {
+        var previousStatus = this.status;
         this.status = command.status();
+        if (previousStatus != this.status) {
+            addDomainEvent(ComandaStatusChangedEvent.from(this, previousStatus));
+        }
         return this;
     }
 
     public ComandaItem addItem(AddComandaItemCommand command) {
         var item = new ComandaItem(command.productName(), command.quantity(), command.notes(), this);
         this.items.add(item);
+        addDomainEvent(new ComandaItemAddedEvent(getId(), tableId, item.getProductName(), item.getQuantity()));
         return item;
     }
 
     public void sendToKitchen() {
+        var previousStatus = this.status;
         this.status = EComandaStatus.SENT_TO_KITCHEN;
+        if (previousStatus != this.status) {
+            addDomainEvent(ComandaStatusChangedEvent.from(this, previousStatus));
+        }
     }
 
     public void close() {
+        var previousStatus = this.status;
         this.status = EComandaStatus.CLOSED;
+        if (previousStatus != this.status) {
+            addDomainEvent(ComandaStatusChangedEvent.from(this, previousStatus));
+        }
+    }
+
+    public void onCreated() {
+        addDomainEvent(ComandaCreatedEvent.from(this));
     }
 }

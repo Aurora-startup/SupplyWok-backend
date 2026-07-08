@@ -1,6 +1,8 @@
 package aurora.supply_wok.platform.profiles.domain.model.aggregates;
 
 import aurora.supply_wok.platform.profiles.domain.model.commands.UpdateProfileCommand;
+import aurora.supply_wok.platform.profiles.domain.model.events.ProfileCreatedEvent;
+import aurora.supply_wok.platform.profiles.domain.model.events.ProfileUpdatedEvent;
 import aurora.supply_wok.platform.profiles.domain.model.valueobjects.EProfileType;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
 import lombok.Getter;
@@ -63,6 +65,14 @@ public class Profile extends AbstractDomainAggregateRoot<Profile> {
         update(command.businessName(), command.firstName(), command.lastName(), command.email(), command.street(),
                 command.district(), command.city(), command.country(), command.supportContact(),
                 command.emailNotifications(), command.smsNotifications());
+    }
+
+    public void onCreated() {
+        registerDomainEvent(ProfileCreatedEvent.from(this));
+    }
+
+    public void onUpdated() {
+        registerDomainEvent(ProfileUpdatedEvent.from(this));
     }
 
     private void update(String businessName, String firstName, String lastName, String email, String street,

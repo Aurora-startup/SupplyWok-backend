@@ -20,9 +20,12 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
     @Override
     public Profile handle(UpdateProfileCommand command) {
-        var profile = profileRepository.findByProfileType(command.profileType())
-                .orElseGet(() -> new Profile(command.profileType()));
+        var existingProfile = profileRepository.findByProfileType(command.profileType());
+        var profile = existingProfile.orElseGet(() -> new Profile(command.profileType()));
         profile.update(command);
+        if (existingProfile.isPresent()) {
+            profile.onUpdated();
+        }
         return profileRepository.save(profile);
     }
 }

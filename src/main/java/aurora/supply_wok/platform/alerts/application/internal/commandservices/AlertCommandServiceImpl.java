@@ -12,6 +12,7 @@ import aurora.supply_wok.platform.alerts.domain.model.valueobjects.EAlertSeverit
 import aurora.supply_wok.platform.alerts.infrastructure.persistence.jpa.repositories.AlertPersistenceRepository;
 import aurora.supply_wok.platform.inventory.interfaces.acl.InventoryContextFacade;
 import aurora.supply_wok.platform.iot.interfaces.acl.IotContextFacade;
+import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,13 +23,16 @@ public class AlertCommandServiceImpl implements AlertCommandService {
     private final AlertPersistenceRepository alertPersistenceRepository;
     private final IotContextFacade iotContextFacade;
     private final InventoryContextFacade inventoryContextFacade;
+    private final DomainEventPublisher domainEventPublisher;
 
     public AlertCommandServiceImpl(AlertPersistenceRepository alertPersistenceRepository,
                                    IotContextFacade iotContextFacade,
-                                   InventoryContextFacade inventoryContextFacade) {
+                                   InventoryContextFacade inventoryContextFacade,
+                                   DomainEventPublisher domainEventPublisher) {
         this.alertPersistenceRepository = alertPersistenceRepository;
         this.iotContextFacade = iotContextFacade;
         this.inventoryContextFacade = inventoryContextFacade;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
@@ -36,6 +40,8 @@ public class AlertCommandServiceImpl implements AlertCommandService {
         var supplierAlert = new SupplierAlert(command);
         try {
             alertPersistenceRepository.save(supplierAlert);
+            supplierAlert.onCreated();
+            domainEventPublisher.publishAndClear(supplierAlert);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving supplier alert: " + e.getMessage());
         }
@@ -44,14 +50,16 @@ public class AlertCommandServiceImpl implements AlertCommandService {
 
     @Override
     public Long handle(CreateRestaurantAlertCommand command) {
-        var sensorName = iotContextFacade.fetchSensorNameById(command.sensorId());
-        if (sensorName.isBlank()) {
+        var sensorName = command.sensorId() == null ? "System" : iotContextFacade.fetchSensorNameById(command.sensorId());
+        if (command.sensorId() != null && sensorName.isBlank()) {
             throw new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist.");
         }
 
         var restaurantAlert = new RestaurantAlert(command.severity(), command.detail(), command.sensorId(), sensorName);
         try {
             alertPersistenceRepository.save(restaurantAlert);
+            restaurantAlert.onCreated();
+            domainEventPublisher.publishAndClear(restaurantAlert);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving restaurant alert: " + e.getMessage());
         }
@@ -73,6 +81,8 @@ public class AlertCommandServiceImpl implements AlertCommandService {
         var restaurantAlert = new RestaurantAlert(EAlertSeverity.MEDIUM, detail, command.sensorId(), sensorName);
         try {
             alertPersistenceRepository.save(restaurantAlert);
+            restaurantAlert.onCreated();
+            domainEventPublisher.publishAndClear(restaurantAlert);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving restaurant alert: " + e.getMessage());
         }
@@ -89,6 +99,7 @@ public class AlertCommandServiceImpl implements AlertCommandService {
         alert.get().acknowledge();
         try {
             alertPersistenceRepository.save(alert.get());
+            domainEventPublisher.publishAndClear(alert.get());
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while acknowledging alert: " + e.getMessage());
         }

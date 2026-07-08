@@ -2,6 +2,8 @@ package aurora.supply_wok.platform.purchasing.domain.model.aggregates;
 
 import aurora.supply_wok.platform.purchasing.domain.model.commands.CreatePurchaseOrderCommand;
 import aurora.supply_wok.platform.purchasing.domain.model.entities.PurchaseOrderItem;
+import aurora.supply_wok.platform.purchasing.domain.model.events.PurchaseOrderCreatedEvent;
+import aurora.supply_wok.platform.purchasing.domain.model.events.PurchaseOrderStatusChangedEvent;
 import aurora.supply_wok.platform.purchasing.domain.model.valueobjects.EPurchaseOrderPriority;
 import aurora.supply_wok.platform.purchasing.domain.model.valueobjects.EPurchaseOrderStatus;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
@@ -110,6 +112,7 @@ public class PurchaseOrder extends AbstractDomainAggregateRoot<PurchaseOrder> {
             EPurchaseOrderStatus status,
             List<PurchaseOrderItem> items
     ) {
+        var previousStatus = this.status;
         this.code = code;
         this.supplierId = supplierId;
         this.supplierName = supplierName;
@@ -119,6 +122,9 @@ public class PurchaseOrder extends AbstractDomainAggregateRoot<PurchaseOrder> {
         this.priority = priority;
         this.status = status;
         replaceItems(items);
+        if (previousStatus != null && previousStatus != status) {
+            registerDomainEvent(PurchaseOrderStatusChangedEvent.from(this, previousStatus));
+        }
         return this;
     }
 
@@ -151,7 +157,15 @@ public class PurchaseOrder extends AbstractDomainAggregateRoot<PurchaseOrder> {
             throw new IllegalArgumentException("Invalid purchase order status transition.");
         }
 
+        var previousStatus = this.status;
         this.status = nextStatus;
+        if (previousStatus != nextStatus) {
+            registerDomainEvent(PurchaseOrderStatusChangedEvent.from(this, previousStatus));
+        }
+    }
+
+    public void onCreated() {
+        registerDomainEvent(PurchaseOrderCreatedEvent.from(this));
     }
 
     private void replaceItems(List<PurchaseOrderItem> nextItems) {

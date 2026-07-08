@@ -7,6 +7,7 @@ import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.Del
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateComandaStatusCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.services.ComandaCommandService;
 import aurora.supply_wok.platform.restaurantmanagement.infrastructure.persistence.jpa.repositories.ComandaRepository;
+import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,15 +16,19 @@ import java.util.Optional;
 public class ComandaCommandServiceImpl implements ComandaCommandService {
 
     private final ComandaRepository comandaRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
-    public ComandaCommandServiceImpl(ComandaRepository comandaRepository) {
+    public ComandaCommandServiceImpl(ComandaRepository comandaRepository, DomainEventPublisher domainEventPublisher) {
         this.comandaRepository = comandaRepository;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
     public Long handle(CreateComandaCommand command) {
         var comanda = new Comanda(command);
         comandaRepository.save(comanda);
+        comanda.onCreated();
+        domainEventPublisher.publishAndClear(comanda);
         return comanda.getId();
     }
 
@@ -35,6 +40,7 @@ public class ComandaCommandServiceImpl implements ComandaCommandService {
         var comanda = result.get();
         comanda.updateStatus(command);
         comandaRepository.save(comanda);
+        domainEventPublisher.publishAndClear(comanda);
         return Optional.of(comanda);
     }
 
@@ -46,6 +52,7 @@ public class ComandaCommandServiceImpl implements ComandaCommandService {
         var comanda = result.get();
         comanda.addItem(command);
         comandaRepository.save(comanda);
+        domainEventPublisher.publishAndClear(comanda);
         return Optional.of(comanda);
     }
 

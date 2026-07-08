@@ -4,6 +4,7 @@ import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
 import aurora.supply_wok.platform.iam.domain.repositories.UserRepository;
 import aurora.supply_wok.platform.iam.infrastructure.persistence.jpa.assemblers.UserPersistenceAssembler;
 import aurora.supply_wok.platform.iam.infrastructure.persistence.jpa.repositories.UserPersistenceRepository;
+import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,9 +17,12 @@ import java.util.Optional;
 public class UserRepositoryImpl implements UserRepository {
 
     private final UserPersistenceRepository userPersistenceRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
-    public UserRepositoryImpl(UserPersistenceRepository userPersistenceRepository) {
+    public UserRepositoryImpl(UserPersistenceRepository userPersistenceRepository,
+                              DomainEventPublisher domainEventPublisher) {
         this.userPersistenceRepository = userPersistenceRepository;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
@@ -38,8 +42,16 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
+        var isNew = user.getId() == null;
         var saved = userPersistenceRepository.save(UserPersistenceAssembler.toPersistenceFromDomain(user));
-        return UserPersistenceAssembler.toDomainFromPersistence(saved);
+        var savedUser = UserPersistenceAssembler.toDomainFromPersistence(saved);
+        if (isNew) {
+            savedUser.onSignedUp();
+            domainEventPublisher.publishAndClear(savedUser);
+        } else {
+            domainEventPublisher.publishAndClear(user);
+        }
+        return savedUser;
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -39,4 +40,13 @@ public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> 
         super.registerEvent(event);
     }
 
+    @Override
+    public Collection<Object> domainEvents() {
+        return super.domainEvents();
+    }
+
+    @Override
+    public void clearDomainEvents() {
+        super.clearDomainEvents();
+    }
 }

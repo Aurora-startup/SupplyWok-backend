@@ -6,6 +6,7 @@ import aurora.supply_wok.platform.iot.domain.model.commands.DeleteSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.commands.UpdateSensorCommand;
 import aurora.supply_wok.platform.iot.application.commandservices.SensorCommandService;
 import aurora.supply_wok.platform.iot.infrastructure.persistence.jpa.repositories.SensorPersistenceRepository;
+import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,14 +19,17 @@ import java.util.Optional;
 public class SensorCommandServiceImpl implements SensorCommandService {
 
     private final SensorPersistenceRepository sensorPersistenceRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     /**
      * Constructs the SensorCommandServiceImpl.
      *
      * @param sensorPersistenceRepository the repository for Sensor persistence
      */
-    public SensorCommandServiceImpl(SensorPersistenceRepository sensorPersistenceRepository) {
+    public SensorCommandServiceImpl(SensorPersistenceRepository sensorPersistenceRepository,
+                                    DomainEventPublisher domainEventPublisher) {
         this.sensorPersistenceRepository = sensorPersistenceRepository;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     /**
@@ -40,6 +44,8 @@ public class SensorCommandServiceImpl implements SensorCommandService {
         var sensor = new Sensor(command);
         try {
             sensorPersistenceRepository.save(sensor);
+            sensor.onCreated();
+            domainEventPublisher.publishAndClear(sensor);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while saving sensor: " + e.getMessage());
         }
@@ -63,6 +69,7 @@ public class SensorCommandServiceImpl implements SensorCommandService {
         sensor.updateSensor(command);
         try {
             sensorPersistenceRepository.save(sensor);
+            domainEventPublisher.publishAndClear(sensor);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error while updating sensor: " + e.getMessage());
         }

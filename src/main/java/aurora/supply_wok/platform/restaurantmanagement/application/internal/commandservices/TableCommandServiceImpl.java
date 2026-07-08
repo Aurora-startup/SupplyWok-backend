@@ -7,6 +7,7 @@ import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.Upd
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.commands.UpdateTableStatusCommand;
 import aurora.supply_wok.platform.restaurantmanagement.domain.model.services.TableCommandService;
 import aurora.supply_wok.platform.restaurantmanagement.infrastructure.persistence.jpa.repositories.RestaurantTableRepository;
+import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,15 +16,19 @@ import java.util.Optional;
 public class TableCommandServiceImpl implements TableCommandService {
 
     private final RestaurantTableRepository tableRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
-    public TableCommandServiceImpl(RestaurantTableRepository tableRepository) {
+    public TableCommandServiceImpl(RestaurantTableRepository tableRepository, DomainEventPublisher domainEventPublisher) {
         this.tableRepository = tableRepository;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
     public Long handle(CreateTableCommand command) {
         var table = new RestaurantTable(command);
         tableRepository.save(table);
+        table.onCreated();
+        domainEventPublisher.publishAndClear(table);
         return table.getId();
     }
 
@@ -35,6 +40,7 @@ public class TableCommandServiceImpl implements TableCommandService {
         var table = result.get();
         table.update(command);
         tableRepository.save(table);
+        domainEventPublisher.publishAndClear(table);
         return Optional.of(table);
     }
 
@@ -46,6 +52,7 @@ public class TableCommandServiceImpl implements TableCommandService {
         var table = result.get();
         table.updateStatus(command);
         tableRepository.save(table);
+        domainEventPublisher.publishAndClear(table);
         return Optional.of(table);
     }
 

@@ -1,6 +1,7 @@
 package aurora.supply_wok.platform.iam.domain.model.aggregates;
 
 import aurora.supply_wok.platform.iam.domain.model.entities.Role;
+import aurora.supply_wok.platform.iam.domain.model.events.UserSignedUpEvent;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,5 +61,9 @@ public class User extends AbstractDomainAggregateRoot<User> {
         var validatedRoleSet = Role.validateRoleSet(roles);
         this.roles.addAll(validatedRoleSet);
         return this;
+    }
+
+    public void onSignedUp() {
+        registerDomainEvent(UserSignedUpEvent.from(this));
     }
 }
