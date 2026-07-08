@@ -26,7 +26,7 @@ public class CreatePurchaseOrderCommandFromResourceAssembler {
 
     private static CreatePurchaseOrderItemCommand toItemCommand(PurchaseOrderItemResource resource) {
         return new CreatePurchaseOrderItemCommand(
-                resource.id(),
+                null,
                 resource.inventoryItemId(),
                 resource.productName(),
                 resource.quantity(),

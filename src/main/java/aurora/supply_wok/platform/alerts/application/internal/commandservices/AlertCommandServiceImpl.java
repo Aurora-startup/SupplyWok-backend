@@ -55,7 +55,8 @@ public class AlertCommandServiceImpl implements AlertCommandService {
             throw new IllegalArgumentException("Sensor with ID " + command.sensorId() + " does not exist.");
         }
 
-        var restaurantAlert = new RestaurantAlert(command.severity(), command.detail(), command.sensorId(), sensorName);
+        var sensorId = command.sensorId() == null ? 0L : command.sensorId();
+        var restaurantAlert = new RestaurantAlert(command.severity(), command.detail(), sensorId, sensorName);
         try {
             alertPersistenceRepository.save(restaurantAlert);
             restaurantAlert.onCreated();

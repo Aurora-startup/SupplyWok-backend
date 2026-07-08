@@ -17,7 +17,7 @@ public class AlertResourceFromEntityAssembler {
                 restaurantAlert.getStatus().name().toUpperCase(Locale.ROOT),
                 restaurantAlert.getCreatedAt(),
                 "RESTAURANT",
-                restaurantAlert.getSensorId(),
+                restaurantAlert.getSensorId() == null || restaurantAlert.getSensorId() == 0L ? null : restaurantAlert.getSensorId(),
                 restaurantAlert.getSensorName()
         );
     }

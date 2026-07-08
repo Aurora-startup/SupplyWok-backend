@@ -18,7 +18,6 @@ public abstract class Alert extends AuditableAbstractAggregateRoot<Alert> {
 
     @Getter
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false)
     private EAlertSeverity severity;
 
@@ -30,7 +29,6 @@ public abstract class Alert extends AuditableAbstractAggregateRoot<Alert> {
 
     @Getter
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EAlertStatus status;
 

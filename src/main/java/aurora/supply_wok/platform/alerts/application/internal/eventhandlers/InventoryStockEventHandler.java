@@ -28,7 +28,7 @@ public class InventoryStockEventHandler {
                     .formatted(event.name(), event.currentStock(), event.minimumStockLevel());
             alertCommandService.handle(new CreateRestaurantAlertCommand(EAlertSeverity.HIGH, detail, null));
         } catch (Exception ex) {
-            log.warn("Could not create low-stock alert for supply {}: {}", event.supplyId(), ex.getMessage());
+            log.error("Could not create low-stock alert for supply {}", event.supplyId(), ex);
         }
     }
 }
