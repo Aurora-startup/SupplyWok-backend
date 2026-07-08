@@ -52,6 +52,12 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     }
 
     @Override
+    public Optional<Supplier> findByEmailIgnoreCase(String email) {
+        return supplierPersistenceRepository.findFirstByEmailIgnoreCase(email)
+                .map(SupplierPersistenceAssembler::toDomainFromPersistence);
+    }
+
+    @Override
     public boolean existsById(Long id) {
         return supplierPersistenceRepository.existsById(id);
     }

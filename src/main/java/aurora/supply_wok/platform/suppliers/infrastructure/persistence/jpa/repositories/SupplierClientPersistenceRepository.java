@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SupplierClientPersistenceRepository extends JpaRepository<SupplierClientPersistenceEntity, Long> {
+    boolean existsBySupplier_IdAndClient_Id(Long supplierId, Long clientId);
 }

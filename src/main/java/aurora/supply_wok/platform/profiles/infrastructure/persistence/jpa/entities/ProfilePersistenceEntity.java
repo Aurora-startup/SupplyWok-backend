@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,14 +16,16 @@ import lombok.Setter;
  * JPA persistence entity for account profiles.
  */
 @Entity
-@Table(name = "profiles")
+@Table(name = "profiles", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_profiles_type_email", columnNames = {"profile_type", "email"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
 public class ProfilePersistenceEntity extends AuditableAbstractPersistenceEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "profile_type", nullable = false, unique = true, length = 20)
+    @Column(name = "profile_type", nullable = false, length = 20)
     private EProfileType profileType;
 
     @Column(name = "business_name", nullable = false, length = 120)

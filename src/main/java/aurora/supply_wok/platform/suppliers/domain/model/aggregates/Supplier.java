@@ -71,4 +71,15 @@ public class Supplier extends AbstractDomainAggregateRoot<Supplier> {
     public void onCreated() {
         registerDomainEvent(SupplierCreatedEvent.from(this));
     }
+
+    public void updateFromProfile(String name, String contactName, String email, String phone, String category,
+                                  String sla, String responseTime) {
+        this.name = name;
+        this.contactName = contactName;
+        this.email = email;
+        this.phone = phone;
+        this.category = category;
+        this.sla = sla;
+        this.responseTime = responseTime;
+    }
 }

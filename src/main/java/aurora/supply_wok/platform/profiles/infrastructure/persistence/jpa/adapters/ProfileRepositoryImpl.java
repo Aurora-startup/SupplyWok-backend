@@ -9,6 +9,7 @@ import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublis
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 /**
  * Repository adapter that bridges the profile repository port with Spring Data JPA.
@@ -27,8 +28,22 @@ public class ProfileRepositoryImpl implements ProfileRepository {
 
     @Override
     public Optional<Profile> findByProfileType(EProfileType profileType) {
-        return profilePersistenceRepository.findByProfileType(profileType)
+        return profilePersistenceRepository.findAllByProfileType(profileType).stream()
+                .findFirst()
                 .map(ProfilePersistenceAssembler::toDomainFromPersistence);
+    }
+
+    @Override
+    public Optional<Profile> findByProfileTypeAndEmail(EProfileType profileType, String email) {
+        return profilePersistenceRepository.findByProfileTypeAndEmailIgnoreCase(profileType, normalizeEmail(email))
+                .map(ProfilePersistenceAssembler::toDomainFromPersistence);
+    }
+
+    @Override
+    public List<Profile> findAllByProfileType(EProfileType profileType) {
+        return profilePersistenceRepository.findAllByProfileType(profileType).stream()
+                .map(ProfilePersistenceAssembler::toDomainFromPersistence)
+                .toList();
     }
 
     @Override
@@ -45,5 +60,9 @@ public class ProfileRepositoryImpl implements ProfileRepository {
             domainEventPublisher.publishAndClear(savedProfile);
         }
         return savedProfile;
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase();
     }
 }

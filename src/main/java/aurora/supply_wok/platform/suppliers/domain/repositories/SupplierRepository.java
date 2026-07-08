@@ -15,5 +15,7 @@ public interface SupplierRepository {
 
     Optional<Supplier> findById(Long id);
 
+    Optional<Supplier> findByEmailIgnoreCase(String email);
+
     boolean existsById(Long id);
 }

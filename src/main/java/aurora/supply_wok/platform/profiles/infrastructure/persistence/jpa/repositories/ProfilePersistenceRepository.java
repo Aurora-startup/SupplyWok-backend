@@ -5,6 +5,7 @@ import aurora.supply_wok.platform.profiles.infrastructure.persistence.jpa.entiti
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,4 +14,8 @@ import java.util.Optional;
 @Repository
 public interface ProfilePersistenceRepository extends JpaRepository<ProfilePersistenceEntity, Long> {
     Optional<ProfilePersistenceEntity> findByProfileType(EProfileType profileType);
+
+    Optional<ProfilePersistenceEntity> findByProfileTypeAndEmailIgnoreCase(EProfileType profileType, String email);
+
+    List<ProfilePersistenceEntity> findAllByProfileType(EProfileType profileType);
 }
