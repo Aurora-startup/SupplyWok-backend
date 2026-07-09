@@ -7,6 +7,7 @@ import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.assem
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.assemblers.SupplyPersistenceAssembler;
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.StockMovementPersistenceRepository;
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.SupplyPersistenceRepository;
+import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,11 +21,14 @@ public class SupplyRepositoryImpl implements SupplyRepository {
 
     private final SupplyPersistenceRepository supplyPersistenceRepository;
     private final StockMovementPersistenceRepository stockMovementPersistenceRepository;
+    private final DomainEventPublisher domainEventPublisher;
 
     public SupplyRepositoryImpl(SupplyPersistenceRepository supplyPersistenceRepository,
-                                StockMovementPersistenceRepository stockMovementPersistenceRepository) {
+                                StockMovementPersistenceRepository stockMovementPersistenceRepository,
+                                DomainEventPublisher domainEventPublisher) {
         this.supplyPersistenceRepository = supplyPersistenceRepository;
         this.stockMovementPersistenceRepository = stockMovementPersistenceRepository;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
@@ -43,8 +47,18 @@ public class SupplyRepositoryImpl implements SupplyRepository {
 
     @Override
     public Supply save(Supply supply) {
+        var isNew = supply.getId() == null;
         var saved = supplyPersistenceRepository.save(SupplyPersistenceAssembler.toPersistenceFromDomain(supply));
-        return SupplyPersistenceAssembler.toDomainFromPersistence(saved);
+        if (!isNew) {
+            domainEventPublisher.publishAndClear(supply);
+        }
+
+        var savedSupply = SupplyPersistenceAssembler.toDomainFromPersistence(saved);
+        if (isNew) {
+            savedSupply.onCreated();
+            domainEventPublisher.publishAndClear(savedSupply);
+        }
+        return savedSupply;
     }
 
     @Override

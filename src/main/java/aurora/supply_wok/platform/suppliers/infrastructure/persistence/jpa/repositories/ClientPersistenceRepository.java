@@ -7,12 +7,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data repository for client persistence entities.
  */
 @Repository
 public interface ClientPersistenceRepository extends JpaRepository<ClientPersistenceEntity, Long> {
+    Optional<ClientPersistenceEntity> findFirstByNameIgnoreCase(String name);
 
     @Query("""
             select client

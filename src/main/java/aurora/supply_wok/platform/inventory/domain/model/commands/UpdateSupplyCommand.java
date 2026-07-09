@@ -9,6 +9,7 @@ public record UpdateSupplyCommand(
         Long id,
         String name,
         EUnitOfMeasure unitOfMeasure,
+        Integer currentStock,
         int minimumStockLevel,
         String category
 ) {

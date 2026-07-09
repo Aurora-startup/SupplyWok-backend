@@ -3,6 +3,8 @@ package aurora.supply_wok.platform.suppliers.domain.model.aggregates;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
 import aurora.supply_wok.platform.suppliers.domain.model.commands.CreateCatalogItemCommand;
 import aurora.supply_wok.platform.suppliers.domain.model.commands.UpdateCatalogItemCommand;
+import aurora.supply_wok.platform.suppliers.domain.model.events.CatalogItemCreatedEvent;
+import aurora.supply_wok.platform.suppliers.domain.model.events.CatalogItemUpdatedEvent;
 import aurora.supply_wok.platform.suppliers.domain.model.valueobjects.ECatalogUnit;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,7 +60,12 @@ public class CatalogItem extends AbstractDomainAggregateRoot<CatalogItem> {
 
     public CatalogItem updateInformation(UpdateCatalogItemCommand command) {
         updateCore(command.name(), command.category(), command.price(), command.unit(), command.deliveryConditions());
+        registerDomainEvent(CatalogItemUpdatedEvent.from(this));
         return this;
+    }
+
+    public void onCreated() {
+        registerDomainEvent(CatalogItemCreatedEvent.from(this));
     }
 
     private void assignSupplierId(Long supplierId) {

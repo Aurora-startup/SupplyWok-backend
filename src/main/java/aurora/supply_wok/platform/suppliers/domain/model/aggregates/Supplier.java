@@ -1,6 +1,7 @@
 package aurora.supply_wok.platform.suppliers.domain.model.aggregates;
 
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
+import aurora.supply_wok.platform.suppliers.domain.model.events.SupplierCreatedEvent;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -63,6 +64,21 @@ public class Supplier extends AbstractDomainAggregateRoot<Supplier> {
         this.phone = phone;
         this.category = category;
         this.linkedDate = linkedDate;
+        this.sla = sla;
+        this.responseTime = responseTime;
+    }
+
+    public void onCreated() {
+        registerDomainEvent(SupplierCreatedEvent.from(this));
+    }
+
+    public void updateFromProfile(String name, String contactName, String email, String phone, String category,
+                                  String sla, String responseTime) {
+        this.name = name;
+        this.contactName = contactName;
+        this.email = email;
+        this.phone = phone;
+        this.category = category;
         this.sla = sla;
         this.responseTime = responseTime;
     }

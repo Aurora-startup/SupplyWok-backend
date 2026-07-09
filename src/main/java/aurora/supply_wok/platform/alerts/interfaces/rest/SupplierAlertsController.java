@@ -5,10 +5,8 @@ import aurora.supply_wok.platform.alerts.application.queryservices.AlertQuerySer
 import aurora.supply_wok.platform.alerts.domain.model.aggregates.SupplierAlert;
 import aurora.supply_wok.platform.alerts.domain.model.queries.GetAlertByIdQuery;
 import aurora.supply_wok.platform.alerts.domain.model.queries.GetAllSupplierAlertsQuery;
-import aurora.supply_wok.platform.alerts.interfaces.rest.resources.AlertResource;
-import aurora.supply_wok.platform.alerts.interfaces.rest.resources.CreateSupplierAlertResource;
+import aurora.supply_wok.platform.alerts.interfaces.rest.resources.SupplierAlertResource;
 import aurora.supply_wok.platform.alerts.interfaces.rest.transform.AlertResourceFromEntityAssembler;
-import aurora.supply_wok.platform.alerts.interfaces.rest.transform.CreateSupplierAlertCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,8 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,38 +34,13 @@ public class SupplierAlertsController {
         this.alertQueryService = alertQueryService;
     }
 
-    @PostMapping
-    @Operation(summary = "Create a new supplier alert", description = "Creates a new supplier alert.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Supplier alert created successfully", content = @Content(schema = @Schema(implementation = AlertResource.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid request data")
-    })
-    public ResponseEntity<AlertResource> createSupplierAlert(@Valid @RequestBody CreateSupplierAlertResource resource) {
-        try {
-            var command = CreateSupplierAlertCommandFromResourceAssembler.toCommandFromResource(resource);
-            var alertId = alertCommandService.handle(command);
-
-            var query = new GetAlertByIdQuery(alertId);
-            var alert = alertQueryService.handle(query);
-
-            if (alert.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-
-            var alertResource = AlertResourceFromEntityAssembler.toResourceFromEntity(alert.get());
-            return new ResponseEntity<>(alertResource, HttpStatus.CREATED);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @GetMapping("/{alertId}")
     @Operation(summary = "Get supplier alert by ID", description = "Retrieves a specific supplier alert.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Supplier alert found", content = @Content(schema = @Schema(implementation = AlertResource.class))),
+        @ApiResponse(responseCode = "200", description = "Supplier alert found", content = @Content(schema = @Schema(implementation = SupplierAlertResource.class))),
         @ApiResponse(responseCode = "404", description = "Supplier alert not found")
     })
-    public ResponseEntity<AlertResource> getSupplierAlertById(
+    public ResponseEntity<SupplierAlertResource> getSupplierAlertById(
             @PathVariable @Parameter(description = "Supplier Alert ID", example = "1", required = true) Long alertId
     ) {
         var query = new GetAlertByIdQuery(alertId);
@@ -79,7 +50,7 @@ public class SupplierAlertsController {
             return ResponseEntity.notFound().build();
         }
 
-        var alertResource = AlertResourceFromEntityAssembler.toResourceFromEntity(alert.get());
+        var alertResource = AlertResourceFromEntityAssembler.toSupplierResourceFromEntity((SupplierAlert) alert.get());
         return ResponseEntity.ok(alertResource);
     }
 
@@ -88,26 +59,26 @@ public class SupplierAlertsController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Supplier alerts retrieved successfully")
     })
-    public ResponseEntity<List<AlertResource>> getAllSupplierAlerts() {
+    public ResponseEntity<List<SupplierAlertResource>> getAllSupplierAlerts() {
         var alerts = alertQueryService.handle(new GetAllSupplierAlertsQuery());
         if (alerts.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
 
         var resources = alerts.stream()
-                .map(AlertResourceFromEntityAssembler::toResourceFromEntity)
+                .map(alert -> AlertResourceFromEntityAssembler.toSupplierResourceFromEntity((SupplierAlert) alert))
                 .toList();
         return ResponseEntity.ok(resources);
     }
 
-    @PostMapping("/{alertId}/acknowledge")
+    @PatchMapping("/{alertId}")
     @Operation(summary = "Acknowledge supplier alert", description = "Acknowledges a supplier alert by setting its status to Acknowledged.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Supplier alert acknowledged successfully", content = @Content(schema = @Schema(implementation = AlertResource.class))),
+        @ApiResponse(responseCode = "200", description = "Supplier alert acknowledged successfully", content = @Content(schema = @Schema(implementation = SupplierAlertResource.class))),
         @ApiResponse(responseCode = "404", description = "Supplier alert not found"),
         @ApiResponse(responseCode = "400", description = "Invalid request data")
     })
-    public ResponseEntity<AlertResource> acknowledgeSupplierAlert(
+    public ResponseEntity<SupplierAlertResource> acknowledgeSupplierAlert(
             @PathVariable @Parameter(description = "Supplier Alert ID", example = "1", required = true) Long alertId
     ) {
         var currentAlert = alertQueryService.handle(new GetAlertByIdQuery(alertId));
@@ -121,7 +92,7 @@ public class SupplierAlertsController {
                 return ResponseEntity.notFound().build();
             }
 
-            return ResponseEntity.ok(AlertResourceFromEntityAssembler.toResourceFromEntity(acknowledged.get()));
+            return ResponseEntity.ok(AlertResourceFromEntityAssembler.toSupplierResourceFromEntity((SupplierAlert) acknowledged.get()));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().build();
         }

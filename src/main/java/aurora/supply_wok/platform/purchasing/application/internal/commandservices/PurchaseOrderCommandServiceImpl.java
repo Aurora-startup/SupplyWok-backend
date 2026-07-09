@@ -66,7 +66,9 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
         );
 
         var order = new PurchaseOrder(command, supplierName.get(), priority, status, items);
-        return Optional.of(purchaseOrderRepository.save(order));
+        var savedOrder = purchaseOrderRepository.save(order);
+        suppliersContextFacade.ensureSupplierClientLinked(savedOrder.getSupplierId(), savedOrder.getRestaurantName());
+        return Optional.of(savedOrder);
     }
 
     @Override
@@ -114,7 +116,9 @@ public class PurchaseOrderCommandServiceImpl implements PurchaseOrderCommandServ
                 status,
                 items
         );
-        return Optional.of(purchaseOrderRepository.save(order.get()));
+        var savedOrder = purchaseOrderRepository.save(order.get());
+        suppliersContextFacade.ensureSupplierClientLinked(savedOrder.getSupplierId(), savedOrder.getRestaurantName());
+        return Optional.of(savedOrder);
     }
 
     @Override

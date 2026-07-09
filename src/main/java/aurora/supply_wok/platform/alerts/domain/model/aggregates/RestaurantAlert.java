@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Entity
@@ -14,12 +13,10 @@ import lombok.Getter;
 public class RestaurantAlert extends Alert {
 
     @Getter
-    @NotNull
     @Column(name = "sensor_id", nullable = true)
     private Long sensorId;
 
     @Getter
-    @NotNull
     @NotBlank
     @Column(name = "sensor_name", nullable = true)
     private String sensorName;
@@ -36,7 +33,7 @@ public class RestaurantAlert extends Alert {
 
     public RestaurantAlert(CreateRestaurantAlertCommand command) {
         super(command.severity(), command.detail());
-        this.sensorId = command.sensorId();
-        this.sensorName = "";
+        this.sensorId = command.sensorId() == null ? 0L : command.sensorId();
+        this.sensorName = command.sensorId() == null ? "System" : "Sensor " + command.sensorId();
     }
 }

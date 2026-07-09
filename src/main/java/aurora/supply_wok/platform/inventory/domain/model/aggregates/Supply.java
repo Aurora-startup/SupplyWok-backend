@@ -1,6 +1,10 @@
 package aurora.supply_wok.platform.inventory.domain.model.aggregates;
 
 import aurora.supply_wok.platform.inventory.domain.model.commands.CreateSupplyCommand;
+import aurora.supply_wok.platform.inventory.domain.model.events.SupplyCreatedEvent;
+import aurora.supply_wok.platform.inventory.domain.model.events.SupplyMinimumStockReachedEvent;
+import aurora.supply_wok.platform.inventory.domain.model.events.SupplyStockChangedEvent;
+import aurora.supply_wok.platform.inventory.domain.model.events.SupplyUpdatedEvent;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.EMovementType;
 import aurora.supply_wok.platform.inventory.domain.model.valueobjects.EUnitOfMeasure;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
@@ -54,12 +58,23 @@ public class Supply extends AbstractDomainAggregateRoot<Supply> {
         );
     }
 
-    public void update(String name, EUnitOfMeasure unitOfMeasure, int minimumStockLevel, String category) {
+    public void update(String name, EUnitOfMeasure unitOfMeasure, Integer currentStock, int minimumStockLevel, String category) {
         validateCoreData(name, minimumStockLevel, category);
+        if (currentStock != null && currentStock < 0) {
+            throw new IllegalArgumentException("Current stock cannot be negative.");
+        }
+
         this.name = name.trim();
         this.unitOfMeasure = unitOfMeasure;
+        if (currentStock != null) {
+            this.currentStock = currentStock;
+        }
         this.minimumStockLevel = minimumStockLevel;
         this.category = category.trim();
+        registerDomainEvent(SupplyUpdatedEvent.from(this));
+        if (isAtOrBelowMinimumStock()) {
+            registerDomainEvent(SupplyMinimumStockReachedEvent.from(this));
+        }
     }
 
     public void increaseStock(int amount) {
@@ -82,6 +97,21 @@ public class Supply extends AbstractDomainAggregateRoot<Supply> {
             case Exit -> decreaseStock(amount);
             default -> throw new IllegalArgumentException("Unsupported movement type.");
         }
+        registerDomainEvent(SupplyStockChangedEvent.from(this, type, amount));
+        if (isAtOrBelowMinimumStock()) {
+            registerDomainEvent(SupplyMinimumStockReachedEvent.from(this));
+        }
+    }
+
+    public void onCreated() {
+        registerDomainEvent(SupplyCreatedEvent.from(this));
+        if (isAtOrBelowMinimumStock()) {
+            registerDomainEvent(SupplyMinimumStockReachedEvent.from(this));
+        }
+    }
+
+    private boolean isAtOrBelowMinimumStock() {
+        return currentStock <= minimumStockLevel;
     }
 
     private static void validateCoreData(String name, int minimumStockLevel, String category) {

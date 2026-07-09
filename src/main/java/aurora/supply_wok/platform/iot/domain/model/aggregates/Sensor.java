@@ -2,6 +2,9 @@ package aurora.supply_wok.platform.iot.domain.model.aggregates;
 
 import aurora.supply_wok.platform.iot.domain.model.commands.CreateSensorCommand;
 import aurora.supply_wok.platform.iot.domain.model.commands.UpdateSensorCommand;
+import aurora.supply_wok.platform.iot.domain.model.events.SensorCreatedEvent;
+import aurora.supply_wok.platform.iot.domain.model.events.SensorThresholdBreachedEvent;
+import aurora.supply_wok.platform.iot.domain.model.events.SensorUpdatedEvent;
 import aurora.supply_wok.platform.iot.domain.model.valueobjects.ESensorType;
 import aurora.supply_wok.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
@@ -100,6 +103,21 @@ public class Sensor extends AuditableAbstractAggregateRoot<Sensor> {
         this.enabled = command.enabled();
         this.lastValue = command.lastValue();
         this.type = command.type();
+        addDomainEvent(SensorUpdatedEvent.from(this));
+        if (isThresholdBreached()) {
+            addDomainEvent(SensorThresholdBreachedEvent.from(this));
+        }
         return this;
+    }
+
+    public void onCreated() {
+        addDomainEvent(SensorCreatedEvent.from(this));
+        if (isThresholdBreached()) {
+            addDomainEvent(SensorThresholdBreachedEvent.from(this));
+        }
+    }
+
+    private boolean isThresholdBreached() {
+        return enabled && (lastValue < minValue || lastValue > maxValue);
     }
 }
