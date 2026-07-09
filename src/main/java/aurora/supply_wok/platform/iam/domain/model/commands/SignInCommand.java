@@ -8,7 +8,7 @@ package aurora.supply_wok.platform.iam.domain.model.commands;
  * @param email the email of the user
  * @param password the password of the user
  *
- * @see com.acme.center.platform.iam.domain.model.aggregates.User
+ * @see aurora.supply_wok.platform.iam.domain.model.aggregates.User
  */
 public record SignInCommand(String email, String password) {
 }
