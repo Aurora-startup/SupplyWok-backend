@@ -1,8 +1,6 @@
 package aurora.supply_wok.platform.iam.domain.model.commands;
 
-import aurora.supply_wok.platform.iam.domain.model.entities.Role;
 
-import java.util.List;
 
 /**
  * Sign up command
@@ -15,5 +13,5 @@ import java.util.List;
  *
  * @see com.acme.center.platform.iam.domain.model.aggregates.User
  */
-public record SignUpCommand(String email, String password, List<Role> roles) {
+public record SignUpCommand(String email, String password, String role) {
 }

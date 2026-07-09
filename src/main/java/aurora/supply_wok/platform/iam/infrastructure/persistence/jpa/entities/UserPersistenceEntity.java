@@ -26,10 +26,8 @@ public class UserPersistenceEntity extends AuditableAbstractPersistenceEntity {
     @Column(name = "password", nullable = false, length = 120)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RolePersistenceEntity> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles role;
 }
 

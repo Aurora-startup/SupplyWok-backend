@@ -1,7 +1,6 @@
 package aurora.supply_wok.platform.iam.infrastructure.authorization.sfs.model;
 
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
-import aurora.supply_wok.platform.iam.domain.model.entities.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * This class is responsible for providing the user details to the Spring Security framework.
@@ -51,14 +49,11 @@ public class UserDetailsImpl implements UserDetails {
      * @return The UserDetailsImpl object.
      */
     public static UserDetailsImpl build(User user) {
-        var authorities = user.getRoles().stream()
-                .map(Role::getStringName)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        var authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
         return new UserDetailsImpl(
                 user.getEmail(),
                 user.getPassword(),
-                authorities);
+                java.util.List.of(authority));
     }
 
     @Override

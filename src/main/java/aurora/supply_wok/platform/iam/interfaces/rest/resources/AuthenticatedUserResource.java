@@ -23,6 +23,9 @@ public record AuthenticatedUserResource(
     @Schema(description = "User assigned roles", example = "[\"ROLE_RESTAURANT\"]")
     java.util.List<String> roles,
 
+    @Schema(description = "User role", example = "Restaurant")
+    String role,
+
     @Schema(description = "JWT Bearer token for authentication", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     String token
 ) {

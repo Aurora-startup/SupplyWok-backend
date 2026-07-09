@@ -3,13 +3,10 @@ package aurora.supply_wok.platform.iam.interfaces.acl;
 import aurora.supply_wok.platform.iam.application.commandservices.UserCommandService;
 import aurora.supply_wok.platform.iam.application.queryservices.UserQueryService;
 import aurora.supply_wok.platform.iam.domain.model.commands.SignUpCommand;
-import aurora.supply_wok.platform.iam.domain.model.entities.Role;
+import aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles;
 import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByIdQuery;
 import aurora.supply_wok.platform.iam.domain.model.queries.GetUserByEmailQuery;
 import org.apache.logging.log4j.util.Strings;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ACL facade that exposes IAM bounded context capabilities to other contexts.
@@ -34,7 +31,7 @@ public class IamContextFacade {
      * @return created user identifier, or {@code 0L} when creation fails
      */
     public Long createUser(String email, String password) {
-        var signUpCommand = new SignUpCommand(email, password, List.of(Role.getDefaultRole()));
+        var signUpCommand = new SignUpCommand(email, password, Roles.RESTAURANT.name());
         var result = userCommandService.handle(signUpCommand);
         if (result instanceof aurora.supply_wok.platform.shared.application.result.Result.Success(var user)) {
             return user.getId();
@@ -43,16 +40,15 @@ public class IamContextFacade {
     }
 
     /**
-     * Creates a new user with explicit role names.
+     * Creates a new user with explicit role name.
      *
      * @param email email to register
      * @param password raw password
-     * @param roleNames role names to assign; unknown names are ignored
+     * @param roleName role name to assign
      * @return created user identifier, or {@code 0L} when creation fails
      */
-    public Long createUser(String email, String password, List<String> roleNames) {
-        var roles = roleNames != null ? roleNames.stream().map(Role::toRoleFromName).toList() : new ArrayList<Role>();
-        var signUpCommand = new SignUpCommand(email, password, roles);
+    public Long createUser(String email, String password, String roleName) {
+        var signUpCommand = new SignUpCommand(email, password, roleName);
         var result = userCommandService.handle(signUpCommand);
         if (result instanceof aurora.supply_wok.platform.shared.application.result.Result.Success(var user)) {
             return user.getId();

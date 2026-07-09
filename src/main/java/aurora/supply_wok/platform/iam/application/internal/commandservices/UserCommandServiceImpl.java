@@ -6,7 +6,6 @@ import aurora.supply_wok.platform.iam.application.commandservices.UserCommandSer
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
 import aurora.supply_wok.platform.iam.domain.model.commands.SignInCommand;
 import aurora.supply_wok.platform.iam.domain.model.commands.SignUpCommand;
-import aurora.supply_wok.platform.iam.domain.repositories.RoleRepository;
 import aurora.supply_wok.platform.iam.domain.repositories.UserRepository;
 import aurora.supply_wok.platform.shared.application.result.ApplicationError;
 import aurora.supply_wok.platform.shared.application.result.Result;
@@ -22,17 +21,14 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final UserRepository userRepository;
     private final HashingService hashingService;
     private final TokenService tokenService;
-    private final RoleRepository roleRepository;
 
     public UserCommandServiceImpl(
             UserRepository userRepository,
             HashingService hashingService,
-            TokenService tokenService,
-            RoleRepository roleRepository) {
+            TokenService tokenService) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.tokenService = tokenService;
-        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -53,19 +49,15 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (userRepository.existsByEmail(command.email())) {
             return Result.failure(ApplicationError.conflict("User", "Email already exists"));
         }
-        var roles = command.roles().stream()
-                .map(role -> roleRepository.findByName(role.getName()))
-                .toList();
 
-        if (roles.stream().anyMatch(java.util.Optional::isEmpty)) {
-            return Result.failure(ApplicationError.notFound("Role", "one or more role names"));
+        aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles role;
+        try {
+            role = aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles.valueOf(command.role().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return Result.failure(ApplicationError.validationError("role", "Invalid role name"));
         }
 
-        var resolvedRoles = roles.stream()
-                .map(java.util.Optional::get)
-                .toList();
-
-        var user = new User(command.email(), hashingService.encode(command.password()), resolvedRoles);
+        var user = new User(command.email(), hashingService.encode(command.password()), role);
         userRepository.save(user);
         return userRepository.findByEmail(command.email())
                 .<Result<User, ApplicationError>>map(Result::success)

@@ -1,7 +1,7 @@
 package aurora.supply_wok.platform.iam.interfaces.rest.resources;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.List;
+
 
 /**
  * Resource received to register a new IAM user.
@@ -9,7 +9,7 @@ import java.util.List;
 @Schema(
     name = "SignUpRequest",
     description = "User sign-up request with email, password, and roles",
-    example = "{\"email\": \"john.doe@example.com\", \"password\": \"SecurePass123!\", \"roles\": [\"ROLE_RESTAURANT\"]}"
+    example = "{\"email\": \"john.doe@example.com\", \"password\": \"SecurePass123!\", \"role\": \"Restaurant\"}"
 )
 public record SignUpResource(
     @Schema(
@@ -28,9 +28,9 @@ public record SignUpResource(
     String password,
 
     @Schema(
-        description = "Roles to assign to the user",
-        example = "[\"ROLE_RESTAURANT\"]"
+        description = "Role to assign to the user",
+        example = "Restaurant"
     )
-    List<String> roles
+    String role
 ) {
 }

@@ -15,7 +15,8 @@ public class AuthenticatedUserResourceFromEntityAssembler {
      * @return resource used by the authentication endpoint response
      */
     public static AuthenticatedUserResource toResourceFromEntity(User user, String token) {
-        var roles = user.getRoles().stream().map(role -> role.getName().name()).toList();
-        return new AuthenticatedUserResource(user.getId(), user.getEmail(), roles, token);
+        java.util.List<String> roles = user.getRole() != null ? java.util.List.of(user.getRole().name()) : java.util.List.<String>of();
+        String roleStr = user.getRole() != null ? user.getRole().name() : null;
+        return new AuthenticatedUserResource(user.getId(), user.getEmail(), roles, roleStr, token);
     }
 }

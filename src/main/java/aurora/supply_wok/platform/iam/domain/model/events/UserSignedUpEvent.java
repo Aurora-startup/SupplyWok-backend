@@ -1,7 +1,6 @@
 package aurora.supply_wok.platform.iam.domain.model.events;
 
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
-import aurora.supply_wok.platform.iam.domain.model.entities.Role;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public record UserSignedUpEvent(
         return new UserSignedUpEvent(
                 user.getId(),
                 user.getEmail(),
-                user.getRoles().stream().map(Role::getStringName).toList()
+                user.getRole() != null ? List.of(user.getRole().name()) : List.of()
         );
     }
 }
