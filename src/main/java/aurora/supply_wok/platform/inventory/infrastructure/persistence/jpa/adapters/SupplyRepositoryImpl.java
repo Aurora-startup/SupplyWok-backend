@@ -5,6 +5,7 @@ import aurora.supply_wok.platform.inventory.domain.model.entities.StockMovement;
 import aurora.supply_wok.platform.inventory.domain.repositories.SupplyRepository;
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.assemblers.StockMovementPersistenceAssembler;
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.assemblers.SupplyPersistenceAssembler;
+import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.entities.SupplyPersistenceEntity;
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.StockMovementPersistenceRepository;
 import aurora.supply_wok.platform.inventory.infrastructure.persistence.jpa.repositories.SupplyPersistenceRepository;
 import aurora.supply_wok.platform.shared.infrastructure.events.DomainEventPublisher;
@@ -48,7 +49,19 @@ public class SupplyRepositoryImpl implements SupplyRepository {
     @Override
     public Supply save(Supply supply) {
         var isNew = supply.getId() == null;
-        var saved = supplyPersistenceRepository.save(SupplyPersistenceAssembler.toPersistenceFromDomain(supply));
+        SupplyPersistenceEntity entityToSave;
+        if (isNew) {
+            entityToSave = SupplyPersistenceAssembler.toPersistenceFromDomain(supply);
+        } else {
+            entityToSave = supplyPersistenceRepository.findById(supply.getId())
+                    .orElseGet(() -> SupplyPersistenceAssembler.toPersistenceFromDomain(supply));
+            entityToSave.setName(supply.getName());
+            entityToSave.setUnitOfMeasure(supply.getUnitOfMeasure());
+            entityToSave.setCurrentStock(supply.getCurrentStock());
+            entityToSave.setMinimumStockLevel(supply.getMinimumStockLevel());
+            entityToSave.setCategory(supply.getCategory());
+        }
+        var saved = supplyPersistenceRepository.save(entityToSave);
         if (!isNew) {
             domainEventPublisher.publishAndClear(supply);
         }

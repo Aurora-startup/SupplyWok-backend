@@ -27,11 +27,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
     @Override
     public Profile handle(UpdateProfileCommand command) {
-        var existingProfile = profileRepository.findByProfileTypeAndEmail(command.profileType(), command.email())
-                .or(() -> {
-                    var profiles = profileRepository.findAllByProfileType(command.profileType());
-                    return profiles.size() == 1 ? Optional.of(profiles.get(0)) : Optional.empty();
-                });
+        var existingProfile = profileRepository.findByProfileTypeAndEmail(command.profileType(), command.email());
         var profile = existingProfile.orElseGet(() -> new Profile(command.profileType()));
         profile.update(command);
         if (existingProfile.isPresent()) {

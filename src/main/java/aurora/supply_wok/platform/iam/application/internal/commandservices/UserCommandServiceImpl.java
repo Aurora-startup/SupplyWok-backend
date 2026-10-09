@@ -6,6 +6,7 @@ import aurora.supply_wok.platform.iam.application.commandservices.UserCommandSer
 import aurora.supply_wok.platform.iam.domain.model.aggregates.User;
 import aurora.supply_wok.platform.iam.domain.model.commands.SignInCommand;
 import aurora.supply_wok.platform.iam.domain.model.commands.SignUpCommand;
+import aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles;
 import aurora.supply_wok.platform.iam.domain.repositories.UserRepository;
 import aurora.supply_wok.platform.shared.application.result.ApplicationError;
 import aurora.supply_wok.platform.shared.application.result.Result;
@@ -50,11 +51,15 @@ public class UserCommandServiceImpl implements UserCommandService {
             return Result.failure(ApplicationError.conflict("User", "Email already exists"));
         }
 
-        aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles role;
+        Roles role;
         try {
-            role = aurora.supply_wok.platform.iam.domain.model.valueobjects.Roles.valueOf(command.role().toUpperCase());
+            role = Roles.valueOf(command.role().toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             return Result.failure(ApplicationError.validationError("role", "Invalid role name"));
+        }
+
+        if (role == Roles.ADMIN) {
+            return Result.failure(ApplicationError.validationError("role", "Role not allowed for sign-up"));
         }
 
         var user = new User(command.email(), hashingService.encode(command.password()), role);

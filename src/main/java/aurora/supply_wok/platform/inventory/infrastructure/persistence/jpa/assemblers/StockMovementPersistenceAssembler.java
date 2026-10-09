@@ -13,8 +13,11 @@ public final class StockMovementPersistenceAssembler {
     }
 
     public static StockMovement toDomainFromPersistence(StockMovementPersistenceEntity entity) {
+        var supplyId = entity.getSupplyId() != null
+                ? entity.getSupplyId()
+                : (entity.getSupply() != null ? entity.getSupply().getId() : null);
         var movement = new StockMovement(
-                entity.getSupplyId(),
+                supplyId,
                 entity.getType(),
                 entity.getAmount(),
                 entity.getDate(),
@@ -28,6 +31,9 @@ public final class StockMovementPersistenceAssembler {
         var entity = new StockMovementPersistenceEntity();
         entity.setId(movement.getId());
         entity.setSupply(supply);
+        if (supply != null) {
+            entity.setSupplyId(supply.getId());
+        }
         entity.setType(movement.getType());
         entity.setAmount(movement.getAmount());
         entity.setDate(movement.getDate());

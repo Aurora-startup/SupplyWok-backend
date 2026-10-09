@@ -48,7 +48,6 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = tokenService.getBearerTokenFrom(request);
-            log.info("Token: {}", token);
             if (token != null && tokenService.validateToken(token)) {
                 String email = tokenService.getEmailFromToken(token);
                 var userDetails = userDetailsService.loadUserByUsername(email);
